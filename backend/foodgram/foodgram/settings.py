@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'djoser',
     'rest_framework',
     'users',
+    'django_filters',
     'recipes',
     'api',
 ]
@@ -97,9 +98,24 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = '/media'
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10
+}
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'users.User'
 
 EMAIL_MAX_LENGHT = 254
 USERNAME_MAX_LENGHT = 150
 FIRST_USERNAME_MAX_LENGHT = 150
 LAST_USERNAME_MAX_LENGHT = 150
+INGREDIENT_MIN_AMOUNT = 1
+RECIPE_NAME = 200
+RECIPE_TEXT = 500
+INGREDIENT_NAME = 150
+INGREDIENT_UNIT = 7
+TAG_NAME = 80
+TAG_SLUG = 100
+TAG_COLOR = 7

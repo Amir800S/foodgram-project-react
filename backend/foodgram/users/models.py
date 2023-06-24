@@ -1,23 +1,30 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models import UniqueConstraint
+from django.db.models import UniqueConstraint, CheckConstraint
+
+from .validators import validate_username, validate_regex_username
 
 
-class CustomUser(AbstractUser):
+class User(AbstractUser):
     """Модель пользователя."""
     first_name = models.CharField(
         max_length=settings.FIRST_USERNAME_MAX_LENGHT,
         blank=True,
+        null=False,
+        verbose_name='Имя'
     )
     last_name = models.CharField(
         max_length=settings.LAST_USERNAME_MAX_LENGHT,
         blank=True,
+        null=False,
+        verbose_name='Фамилия'
     )
     username = models.CharField(
         'Никнейм',
         max_length=settings.USERNAME_MAX_LENGHT,
         null=False,
-        blank=False,
+        blank=True,
         unique=True,
         validators=(validate_regex_username,
                     validate_username),
@@ -31,7 +38,6 @@ class CustomUser(AbstractUser):
     )
 
     class Meta:
-        """Мета класс User."""
         ordering = ('username', )
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
@@ -41,7 +47,7 @@ class CustomUser(AbstractUser):
 
 
 class Subscribe(models.Model):
-    """ Subscribe модель """
+    """Subscribe модель."""
     user = models.ForeignKey(
         User,
         related_name='subscriber',
@@ -58,7 +64,6 @@ class Subscribe(models.Model):
     )
 
     class Meta:
-        """ Metaclass Subscribe."""
         verbose_name = 'Подписки'
         UniqueConstraint(fields=['author', 'user'],
                          name='re-subscription')

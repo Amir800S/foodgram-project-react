@@ -2,19 +2,12 @@ import re
 
 from django.core.exceptions import ValidationError
 
-from users.models import Subscribe
 
-
-def validate(self, value):
-    author = self.instance
-    user = self.context.get('request').user
-    if Subscribe.objects.filter(author=author, user=user).exists():
+def validate_username(value):
+    """В качестве ника запрещает использовать 'me'."""
+    if value == 'me':
         raise ValidationError(
-            'Вы уже подписаны на этого автора.',
-        )
-    if user == author:
-        raise ValidationError(
-            'Подписаться на самого себя невозможно.',
+            'Запрещенное имя пользователя - "me".'
         )
     return value
 
