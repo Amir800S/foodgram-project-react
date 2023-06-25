@@ -106,5 +106,5 @@ dmypy.json
 .pyre/
 
 .idea
-backend/foodgram/.env
+.env
 backend/foodgram/venv
