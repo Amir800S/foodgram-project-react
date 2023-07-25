@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favourite, Ingredient, RecipeIngredients,
@@ -13,10 +14,8 @@ from rest_framework.response import Response
 
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (IngredientSerializer,
-                          # RecipeReadSerializer,
-                          # RecipeShortSerializer,
-                          # RecipeWriteSerializer,
-                          TagSerializer)
+                          TagSerializer,
+                          RecipeCreateSerializer)
 
 
 class IngredientViewSet(ModelViewSet):
@@ -30,8 +29,8 @@ class IngredientViewSet(ModelViewSet):
 
 class TagViewSet(ReadOnlyModelViewSet):
     """Вьюсет тэгов только для просмотра."""
-    permission_classes = (AllowAny,)
     queryset = Tag.objects.all()
+    permission_classes = (AllowAny,)
     serializer_class = TagSerializer
 
 
@@ -56,7 +55,7 @@ class RecipeViewSet(ModelViewSet):
     def post_or_delete_favourite(self, request, id):
         recipe = get_object_or_404(Recipe, id=id)
         if request.method == 'POST':
-            serializer = RecipeSerializer(recipe, data=request.data)
+            serializer = RecipeCreateSerializer(recipe, data=request.data)
             serializer.is_valid(raise_exception=True)
             if Favourite.objects.filter(
                     user=request.user,
@@ -81,7 +80,7 @@ class RecipeViewSet(ModelViewSet):
     def create_or_delete_shopping_cart(self, request, id):
         recipe = get_object_or_404(Recipe, id=id)
         if request.method == 'POST':
-            serializer = RecipeSerializer(recipe, data=request.data)
+            serializer = RecipeCreateSerializer(recipe, data=request.data)
             serializer.is_valid(raise_exception=True)
             if ShoppingCartList.objects.filter(user=request.user,
                                                recipe=recipe).exists():
@@ -101,3 +100,11 @@ class RecipeViewSet(ModelViewSet):
                 'Рецепт удален!',
                 status=HTTPStatus.NO_CONTENT
             )
+    @action(detail=False,
+            methods=('get', ),
+            url_path='download_shopping_cart',
+            permission_classes=(IsAuthenticated,))
+    def download_pdf(self, request):
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="shopping_list.pdf"'
+        return response

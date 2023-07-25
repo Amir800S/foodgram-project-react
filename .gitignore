@@ -84,7 +84,7 @@ celerybeat.pid
 
 *.sage.py
 
-.env
+infra/.env
 .venv
 env/
 venv/
@@ -106,5 +106,5 @@ dmypy.json
 .pyre/
 
 .idea
-.env
+infra/.env
 backend/foodgram/venv

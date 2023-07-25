@@ -1,33 +1,37 @@
 from http import HTTPStatus
 
-from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.generics import get_object_or_404
 
-from api.serializers import SubscribeSerializer, UserSerializer
+from api.serializers import (SubscribeSerializer,
+                             UserSerializer,
+                             PasswordChangeSerializer)
+from rest_framework.viewsets import ModelViewSet
+
 from .models import User, Subscribe
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class CustomUserViewSet(ModelViewSet):
     """Вьюсет Users для создания и просмотра подписок."""
     queryset = User.objects.all()
-    http_method_names = ('post', 'get', 'delete')
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
+    http_method_names = ('patch', 'post', 'get', 'delete',)
     pagination_class = LimitOffsetPagination
+    serializer_class = UserSerializer
 
-    @action(detail=False,
+    @action(detail=True,
             url_path='me',
-            methods=('GET',),
+            methods=('GET', 'PATCH'),
             permission_classes=(IsAuthenticated,))
     def get_or_patch_self_profile(self, request):
         """Пользователь может изменить и получить данные о себе."""
         user = request.user
         if request.method == 'GET':
             serializer = UserSerializer(user, many=False)
-            return Response(serializer.data)
+            return Response(serializer.data, status=HTTPStatus.OK)
         serializer = UserSerializer(user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -35,7 +39,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=True,
             url_path='subscribe',
-            methods=('POST', 'DELETE'),)
+            methods=('POST', 'DELETE', ),)
     def subscribe_and_unsubscribe(self, request):
         """Создание подписки и отписки."""
         user = request.user
@@ -59,17 +63,17 @@ class UserViewSet(viewsets.ModelViewSet):
         detail=False,
         url_path='subscriptions',
         permission_classes=(IsAuthenticated,),
-        methods=('POST', 'DELETE'),)
+        methods=('GET', ),)
     def all_user_subscriptions(self, request):
-        return User.objects.filter(
-            subscribing__user=request.user).all()
+        return Subscribe.objects.filter(user=request.user).all()
     @action(detail=False,
-            methods=('post', ),
+            url_path='set_password',
+            methods=('POST', ),
             permission_classes=(IsAuthenticated,))
-    def set_password(self, request):
-        serializer = UserSerializer(request.user, data=request.data)
+    def change_password(self, request):
+        serializer = PasswordChangeSerializer(request.user, data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-        return Response(
-            'Пароль успешно изменен!', status=HTTPStatus.NO_CONTENT
-        )
+            return Response(
+              'Пароль успешно изменен!', status=HTTPStatus.NO_CONTENT
+            )

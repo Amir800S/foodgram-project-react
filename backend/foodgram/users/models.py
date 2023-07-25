@@ -36,6 +36,12 @@ class User(AbstractUser):
         unique=True,
         blank=False,
     )
+    password = models.CharField(
+        'Пароль',
+        max_length=settings.PASSWORD_MAX_LENGHT,
+        blank=False,
+        null=False,
+    )
 
     class Meta:
         ordering = ('username', )
@@ -47,7 +53,7 @@ class User(AbstractUser):
 
 
 class Subscribe(models.Model):
-    """Subscribe модель."""
+    """Модель подписки."""
     user = models.ForeignKey(
         User,
         related_name='subscriber',
