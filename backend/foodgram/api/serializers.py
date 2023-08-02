@@ -32,6 +32,20 @@ class UserSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         return Subscribe.objects.filter(user=user, author=obj).exists()
 
+class UserCreationSerializer(serializers.ModelSerializer):
+    """Создание пользователей."""
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'password',
+        )
+
 class PasswordChangeSerializer(serializers.Serializer):
     """Сериалайзер для смены пароля."""
     current_password = serializers.CharField()
@@ -54,7 +68,7 @@ class PasswordChangeSerializer(serializers.Serializer):
 
 
 class SubscribeSerializer(serializers.ModelSerializer):
-    """Подписки пользователя."""
+    """Сериалайзер подписок пользователя."""
     is_subscribed = SerializerMethodField()
     recipes_count = SerializerMethodField()
     recipes = SerializerMethodField()
@@ -81,7 +95,7 @@ class SubscribeSerializer(serializers.ModelSerializer):
         return obj.recipes.all()
 
 class Base64ImageField(serializers.Field):
-    """Картинка."""
+    """Сериалайзер картинок."""
     def to_internal_value(self, data):
         if not isinstance(data, str) or not data.startswith('data:image'):
             raise serializers.ValidationError(
@@ -142,7 +156,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         )
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
-    """Сериализатор для создания рецепта"""
+    """Сериалайзер для создания рецепта."""
 
     tags = TagSerializer(many=True)
     author = UserSerializer()

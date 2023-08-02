@@ -8,7 +8,8 @@ from rest_framework.generics import get_object_or_404
 
 from api.serializers import (SubscribeSerializer,
                              UserSerializer,
-                             PasswordChangeSerializer)
+                             PasswordChangeSerializer,
+                             UserCreationSerializer)
 from rest_framework.viewsets import ModelViewSet
 
 from .models import User, Subscribe
@@ -20,7 +21,7 @@ class CustomUserViewSet(ModelViewSet):
     permission_classes = (AllowAny,)
     http_method_names = ('patch', 'post', 'get', 'delete',)
     pagination_class = LimitOffsetPagination
-    serializer_class = UserSerializer
+    serializer_class = UserCreationSerializer
 
     @action(detail=True,
             url_path='me',

@@ -61,9 +61,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('POSTGRES_DB', 'django'),
-        'USER': os.getenv('POSTGRES_USER', 'django'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', ''),
+        'USER': os.getenv('POSTGRES_USER', 'django_user'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': os.getenv('DB_HOST', 'foodgram-db-1'),
         'PORT': os.getenv('DB_PORT', 5432)
     }
 }
@@ -119,8 +119,12 @@ REST_FRAMEWORK = {
     ],
 }
 
-SIMPLE_JWT = {'ACCESS_TOKEN_LIFETIME': timedelta(days=10),
-              'AUTH_HEADER_TYPES': ('Bearer',), }
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+}
+
+# SIMPLE_JWT = {'ACCESS_TOKEN_LIFETIME': timedelta(days=10),
+#               'AUTH_HEADER_TYPES': ('Bearer',), }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
