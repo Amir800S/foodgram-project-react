@@ -1,7 +1,7 @@
 import base64
 
 from django.core.files.base import ContentFile
-from djoser.serializers import UserCreateSerializer
+from djoser.serializers import UserCreateSerializer, UserSerializer
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
@@ -11,6 +11,19 @@ from recipes.models import (Favourite, Ingredient,
                             Tag, ShoppingCartList)
 from users.models import User, Subscribe
 
+
+class UserCreateSerializer(UserCreateSerializer):
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'first_name',
+            'id',
+            'last_name',
+            'password',
+            'username',
+        )
 
 
 class UserSerializer(serializers.ModelSerializer):

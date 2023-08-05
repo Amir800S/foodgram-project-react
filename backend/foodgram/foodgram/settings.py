@@ -4,12 +4,11 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = str(os.getenv('SECRET_KEY'))
+SECRET_KEY = os.getenv('SECRET_KEY', default='fdskjhdsa867as')
 
-DEBUG = os.getenv('DEBUG_STATUS')
+DEBUG = os.getenv('DEBUG', default=True)
 
-ALLOWED_HOSTS = os.getenv(
-    'ALLOWED_HOSTS', '127.0.0.1 localhost').split(' ')
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -57,22 +56,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'django'),
-        'USER': os.getenv('POSTGRES_USER', 'django_user'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': os.getenv('DB_HOST', 'foodgram-db-1'),
-        'PORT': os.getenv('DB_PORT', 5432)
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('POSTGRES_DB', 'django'),
+            'USER': os.getenv('POSTGRES_USER', 'django_user'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+            'HOST': os.getenv('DB_HOST', 'foodgram-db-1'),
+            'PORT': os.getenv('DB_PORT', 5432)
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -120,11 +121,11 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {
+    'SERIALIZERS': {
+        'user_create': 'api.serializers.UserCreateSerializer',
+    },
     'LOGIN_FIELD': 'email',
 }
-
-# SIMPLE_JWT = {'ACCESS_TOKEN_LIFETIME': timedelta(days=10),
-#               'AUTH_HEADER_TYPES': ('Bearer',), }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
