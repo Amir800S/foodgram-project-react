@@ -10,6 +10,7 @@ from recipes.models import (Favourite, Ingredient,
                             RecipeIngredients, Recipe,
                             Tag, ShoppingCartList)
 from users.models import User, Subscribe
+from django.db import transaction
 
 
 class UserCreateSerializer(UserCreateSerializer):
@@ -45,19 +46,6 @@ class UserSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         return Subscribe.objects.filter(user=user, author=obj).exists()
 
-class UserCreationSerializer(serializers.ModelSerializer):
-    """Создание пользователей."""
-
-    class Meta:
-        model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'password',
-        )
 
 class PasswordChangeSerializer(serializers.Serializer):
     """Сериалайзер для смены пароля."""
@@ -79,12 +67,21 @@ class PasswordChangeSerializer(serializers.Serializer):
         user.save()
         return user
 
-
+class SubscribeRecipeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time',
+        )
 class SubscribeSerializer(serializers.ModelSerializer):
     """Сериалайзер подписок пользователя."""
     is_subscribed = SerializerMethodField()
     recipes_count = SerializerMethodField()
     recipes = SerializerMethodField()
+    email = serializers.ReadOnlyField()
 
     class Meta:
         model = User
@@ -93,21 +90,26 @@ class SubscribeSerializer(serializers.ModelSerializer):
             'id',
             'username',
             'first_name',
-            'last_name'
+            'last_name',
             'is_subscribed',
             'recipes',
             'recipes_count'
         )
-    def get_is_subscribed(self, obj):
-        user = self.context.get('request').user
-        return Subscribe.objects.filter(user=user, author=obj).exists()
-    def get_recipes_count(self, obj):
-        return obj.recipes.count()
-
     def get_recipes(self, obj):
         return obj.recipes.all()
 
-class Base64ImageField(serializers.Field):
+    def get_recipes_count(self, obj):
+        return obj.recipes.all().count()
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if not request:
+            return False
+        return Subscribe.objects.filter(
+            user=request.user, author=obj
+        ).exists()
+
+class Base64ImageField(serializers.ModelSerializer):
     """Сериалайзер картинок."""
     def to_internal_value(self, data):
         if not isinstance(data, str) or not data.startswith('data:image'):
@@ -168,26 +170,88 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             ).exists()
         )
 
-class RecipeCreateSerializer(serializers.ModelSerializer):
-    """Сериалайзер для создания рецепта."""
+class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
+    """Ингредиент и количество для создания рецепта."""
+    id = serializers.IntegerField()
 
-    tags = TagSerializer(many=True)
-    author = UserSerializer()
-    ingredients = IngredientSerializer(many=True)
-    image = Base64ImageField()
+    class Meta:
+        model = RecipeIngredients
+        fields = ('id', 'amount')
+
+class UserReadSerializer(UserSerializer):
+    """."""
+    is_subscribed = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed'
+        )
+
+    def get_is_subscribed(self, obj):
+        user = self.context.get('request').user
+        return Subscribe.objects.filter(user=user, author=obj).exists()
+class RecipeCreateSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(),
+        many=True)
+    ingredients = RecipeIngredientCreateSerializer(many=True)
+    image = Base64ImageField(required=False)
 
     class Meta:
         model = Recipe
         fields = '__all__'
 
-    def create(self, validated_data):
-        recipe = Recipe.objects.create(
-            Recipe.objects.create(**validated_data)
-        )
+    def validate_ingredients(self, ingredients):
+        if not ingredients:
+            raise serializers.ValidationError(
+                'Нужно выбрать ингредиенты.'
+            )
+        for ingredient in ingredients:
+            if ingredient['amount'] < 1:
+                raise serializers.ValidationError(
+                    'Количество не может быть меньше 1.'
+                )
+
+
+    def validate_tags(self, tags):
+        if not tags:
+            raise serializers.ValidationError(
+                'Нужно выбрать теги.')
+        return tags
+
+    def create_ingredients_and_tags(self, tags, ingredients, recipe):
+        for tag in tags:
+            recipe.tags.add(tag)
+            recipe.save()
+        for ingredient in ingredients:
+            RecipeIngredients.objects.create(
+                ingredient_id=ingredient.get('id'),
+                amount=ingredient.get('amount'),
+                recipe=recipe
+            )
         return recipe
 
+    def create(self, validated_data):
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        recipe = Recipe.objects.create(**validated_data)
+        return self.create_ingredients_and_tags(
+            tags, ingredients, recipe
+        )
+
     def update(self, instance, validated_data):
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        return instance
+        instance.ingredients.clear()
+        instance.tags.clear()
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        instance = super().update(instance, validated_data)
+        return self.create_ingredients_and_tags(
+            tags, ingredients, instance
+        )

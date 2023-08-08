@@ -1,3 +1,5 @@
+from colorfield.fields import ColorField
+
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -14,8 +16,7 @@ class Ingredient(models.Model):
     )
     measurement_unit = models.CharField(
         'Единица для измерения',
-        max_length=settings.INGREDIENT_UNIT,
-        null=False
+        max_length=settings.INGREDIENT_UNIT
     )
 
     class Meta:
@@ -39,10 +40,10 @@ class Tag(models.Model):
         unique=True,
         max_length=settings.TAG_SLUG
     )
-    color = models.CharField(
-        'HEX код ингредиента',
-        unique=True,
-        max_length=settings.TAG_COLOR,
+    color = ColorField(
+        'Цветовой HEX-код',
+        format='hex',
+        default='#FF0000',
     )
 
     class Meta:

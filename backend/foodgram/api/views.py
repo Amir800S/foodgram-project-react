@@ -15,7 +15,8 @@ from rest_framework.response import Response
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (IngredientSerializer,
                           TagSerializer,
-                          RecipeCreateSerializer)
+                          RecipeCreateSerializer,
+                          RecipeReadSerializer,)
 
 
 class IngredientViewSet(ModelViewSet):
@@ -47,6 +48,11 @@ class RecipeViewSet(ModelViewSet):
         'create',
         'patch',
     )
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return RecipeReadSerializer
+        return RecipeCreateSerializer
 
     @action(detail=True,
             url_path='favourite',
