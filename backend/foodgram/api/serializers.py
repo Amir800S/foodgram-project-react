@@ -197,16 +197,28 @@ class UserReadSerializer(UserSerializer):
         user = self.context.get('request').user
         return Subscribe.objects.filter(user=user, author=obj).exists()
 class RecipeCreateSerializer(serializers.ModelSerializer):
+    """Создание и изменение рецепта."""
     author = UserSerializer(read_only=True)
     tags = serializers.PrimaryKeyRelatedField(
-        queryset=Tag.objects.all(),
-        many=True)
+        many=True,
+        queryset=Tag.objects.all()
+    )
+    id = serializers.ReadOnlyField()
     ingredients = RecipeIngredientCreateSerializer(many=True)
-    image = Base64ImageField(required=False)
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
-        fields = '__all__'
+        fields = (
+            'id',
+            'ingredients',
+            'tags',
+            'image',
+            'name',
+            'text',
+            'cooking_time',
+            'author'
+        )
 
     def validate_ingredients(self, ingredients):
         if not ingredients:
@@ -238,6 +250,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             )
         return recipe
 
+
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
@@ -255,3 +268,4 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return self.create_ingredients_and_tags(
             tags, ingredients, instance
         )
+

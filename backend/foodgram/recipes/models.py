@@ -40,10 +40,10 @@ class Tag(models.Model):
         unique=True,
         max_length=settings.TAG_SLUG
     )
-    color = ColorField(
+    color = models.CharField(
         'Цветовой HEX-код',
-        format='hex',
-        default='#FF0000',
+        null=True,
+        max_length=settings.TAG_COLOR
     )
 
     class Meta:
