@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import Ingredient, Tag, Recipe
+from .models import (Ingredient, Tag, Recipe, RecipeIngredients,
+                     ShoppingCartList, Favourite)
 from users.models import User, Subscribe
 
 
@@ -92,9 +93,39 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ('name', 'author')
     empty_value_display = '-пусто-'
 
+class RecipeIngredientsAdmin(admin.ModelAdmin):
+    """Админка тэгов."""
+    list_display = (
+        'recipe',
+        'ingredient',
+        'amount'
+    )
+    search_fields = ('recipe', )
+    empty_value_display = '-пусто-'
+
+class ShoppingCartListAdmin(admin.ModelAdmin):
+    """Админка тэгов."""
+    list_display = (
+        'user',
+        'recipe',
+    )
+    search_fields = ('recipe', )
+    empty_value_display = '-пусто-'
+
+class FavouriteAdmin(admin.ModelAdmin):
+    """Админка тэгов."""
+    list_display = (
+        'user',
+        'recipe',
+    )
+    search_fields = ('recipe', 'user')
+    empty_value_display = '-пусто-'
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Subscribe, SubscribeAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Recipe, RecipeAdmin)
+admin.site.register(RecipeIngredients, RecipeIngredientsAdmin)
+admin.site.register(ShoppingCartList, ShoppingCartListAdmin)
+admin.site.register(Favourite, FavouriteAdmin)
