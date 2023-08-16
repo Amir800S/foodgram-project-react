@@ -17,7 +17,7 @@ from .models import User, Subscribe
 
 
 class CustomUserViewSet(UserViewSet):
-    """Вьюсет для модели User и Subscribe"""
+    """Вьюсет для модели User и Subscribe."""
     queryset = User.objects.all()
     serializer_class = UserCreateSerializer
     pagination_class = LimitOffsetPagination
