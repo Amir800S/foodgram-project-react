@@ -96,7 +96,6 @@ class SubscribeSerializer(serializers.ModelSerializer):
             user=request.user, author=obj
         ).exists()
 
-
 class TagSerializer(serializers.ModelSerializer):
     """Сериалайзер тэга."""
     class Meta:
@@ -114,13 +113,18 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     """Ингредиенты для рецепта."""
     class Meta:
         model = RecipeIngredients
-        fields = '__all__'
-
+        fields = (
+            'id',
+            'recipe',
+            'ingredient',
+            'amount',
+        )
 class RecipeReadSerializer(serializers.ModelSerializer):
     """Сериалайзер для списка рецептов."""
     author = UserSerializer()
     tags = TagSerializer(many=True)
-    ingredients = RecipeIngredientSerializer(many=True)
+    name = serializers.SerializerMethodField()
+    ingredients = RecipeIngredientSerializer(many=True, source='recipe_ingredients')
     image = Base64ImageField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     is_favourited = serializers.SerializerMethodField()
@@ -153,7 +157,9 @@ class RecipeReadSerializer(serializers.ModelSerializer):
                 user=self.context['request'].user,recipe=obj
             ).exists()
         )
-
+    def get_name(self, obj):
+        ingredients = obj.ingredients.all()
+        return [ingredient.name for ingredient in ingredients]
 class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
     """Ингредиент и количество для создания рецепта."""
     id = serializers.IntegerField()
@@ -248,7 +254,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
         instance = super().update(instance, validated_data)
         return self.create_ingredients_and_tags(
-            tags, ingredients, instance
+            instance, tags, ingredients
         )
 
     def to_representation(self, instance):

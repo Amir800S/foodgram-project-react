@@ -6,77 +6,72 @@ from rest_framework.response import Response
 from djoser.views import UserViewSet
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.generics import get_object_or_404
+from rest_framework.viewsets import ModelViewSet
 
 from api.serializers import (SubscribeSerializer,
-                             UserSerializer,
                              UserCreateSerializer,
                              PasswordChangeSerializer)
-from rest_framework.viewsets import ModelViewSet
+from .permissions import IsAdminAuthorOrReadOnly
 
 from .models import User, Subscribe
 
 
-class CustomUserViewSet(ModelViewSet):
-    """Вьюсет Users для создания и просмотра подписок."""
+class CustomUserViewSet(UserViewSet):
+    """Вьюсет для модели User и Subscribe"""
     queryset = User.objects.all()
-    permission_classes = (AllowAny,)
-    search_fields = ('username', 'email')
+    serializer_class = UserCreateSerializer
     pagination_class = LimitOffsetPagination
-    serializer_class = UserSerializer
-
-    @action(detail=True,
-            url_path='me',
-            methods=('GET', 'PATCH'),
-            permission_classes=(IsAuthenticated,))
-    def get_or_patch_self_profile(self, request):
-        """Пользователь может изменить и получить данные о себе."""
-        user = request.user
-        if request.method == 'GET':
-            serializer = UserSerializer(user, many=False)
-            return Response(serializer.data, status=HTTPStatus.OK)
-        serializer = UserSerializer(user, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=HTTPStatus.OK)
-
-    @action(detail=True,
-            url_path='subscribe',
-            methods=('POST', 'DELETE', ),
-            permission_classes=(IsAuthenticated,))
-    def subscribe_and_unsubscribe(self, request, pk):
-        """Создание подписки и отписки."""
-        author = get_object_or_404(User, pk=pk)
-
-        if request.method == 'POST':
-            serializer = SubscribeSerializer(author, data=request.data)
-            serializer.is_valid(raise_exception=True)
-            subscribe = Subscribe.objects.create(user=request.user, author=author)
-            subscribe.save()
-            return Response(serializer.data, status=HTTPStatus.CREATED)
-
-        if request.method == 'DELETE':
-            subscription = get_object_or_404(Subscribe,
-                                             user=request.user,
-                                             author=author)
-            subscription.delete()
-            return Response(status=HTTPStatus.NO_CONTENT)
+    permission_classes = (IsAdminAuthorOrReadOnly, )
 
     @action(
+        methods=('get', ),
         detail=False,
-        url_path='subscriptions',
         permission_classes=(IsAuthenticated,),
-        methods=('GET', ),)
-    def all_user_subscriptions(self, request):
-         return Subscribe.objects.filter(user=request.user).all()
+    )
+    def subscriptions(self, request):
+        """Получить подписки пользователя."""
+        serializer = SubscribeSerializer(
+            self.paginate_queryset(
+                Subscribe.objects.filter(user=request.user)
+            ), many=True, context={'request': request}
+        )
+        return self.get_paginated_response(serializer.data)
 
-    @action(detail=False,
-            url_path='set_password',
-            methods=('POST', ),
-            permission_classes=(IsAuthenticated,))
-    def change_password(self, request):
-        serializer = PasswordChangeSerializer(request.user, data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(
-              'Пароль успешно изменен!', status=HTTPStatus.NO_CONTENT
+    @action(
+        methods=('post', 'delete', ),
+        detail=True,
+        permission_classes=(IsAuthenticated,),
+    )
+    def subscribe(self, request, id):
+        """Функция подписки и отписки."""
+        user = request.user
+        author = get_object_or_404(User, pk=id)
+        obj = Subscribe.objects.filter(user=user, author=author)
+
+        if request.method == 'POST':
+            if user == author:
+                return Response(f'На себя подписаться нельзя',
+                                status=HTTPStatus.BAD_REQUEST
+                                )
+            if obj.exists():
+                return Response(
+                    f'Вы уже подписаны на {author.username}',
+                    status=HTTPStatus.BAD_REQUEST
+                )
+            serializer = SubscribeSerializer(
+                Subscribe.objects.create(user=user, author=author),
+                context={'request': request}
             )
+            return Response(serializer.data, status=HTTPStatus.CREATED)
+        if user == author:
+            return Response(
+                f'Вы не можете отписаться от самого себя',
+                status=HTTPStatus.BAD_REQUEST
+            )
+        if obj.exists():
+            obj.delete()
+            return Response(status=HTTPStatus.NO_CONTENT)
+        return Response(
+            f'Вы уже отписались от {author.username}',
+            status=HTTPStatus.BAD_REQUEST
+        )
