@@ -1,9 +1,9 @@
-import base64
-
 from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from django.contrib.auth import authenticate
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
+
 from drf_base64.fields import Base64ImageField
 from rest_framework.fields import SerializerMethodField
 
@@ -55,6 +55,7 @@ class PasswordChangeSerializer(serializers.Serializer):
         return user
 
 class SubscribeRecipeSerializer(serializers.ModelSerializer):
+    """Короткий сериалайзел рецепта."""
     class Meta:
         model = Recipe
         fields = (
@@ -95,7 +96,25 @@ class SubscribeSerializer(serializers.ModelSerializer):
         return Subscribe.objects.filter(
             user=request.user, author=obj
         ).exists()
+class FavouriteSerializer(serializers.ModelSerializer):
+    """Сериалайзер для избранного."""
+    class Meta:
+        model = Favourite
+        fields = '__all__'
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Favourite.objects.all(),
+                fields=('user', 'recipe'),
+                message='Рецепт уже есть в избранном.'
+            )
+        ]
 
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        return SubscribeRecipeSerializer(
+            instance.recipe,
+            context={'request': request},
+        ).data
 class TagSerializer(serializers.ModelSerializer):
     """Сериалайзер тэга."""
     class Meta:
@@ -123,8 +142,10 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     """Сериалайзер для списка рецептов."""
     author = UserSerializer()
     tags = TagSerializer(many=True)
-    name = serializers.SerializerMethodField()
-    ingredients = RecipeIngredientSerializer(many=True, source='recipe_ingredients')
+    ingredients = RecipeIngredientSerializer(
+        many=True,
+        source='recipe_ingredients'
+    )
     image = Base64ImageField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     is_favourited = serializers.SerializerMethodField()
@@ -141,25 +162,20 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             'name',
             'image',
             'text',
-            'cooking_time'
+            'cooking_time',
         )
 
     def get_is_in_shopping_cart(self, obj):
-        return (
-            ShoppingCartList.objects.filter(
+        return ShoppingCartList.objects.filter(
                 user=self.context['request'].user,recipe=obj
             ).exists()
-        )
+
 
     def get_is_favourited(self, obj):
-        return (
-            Favourite.objects.filter(
+        return Favourite.objects.filter(
                 user=self.context['request'].user,recipe=obj
             ).exists()
-        )
-    def get_name(self, obj):
-        ingredients = obj.ingredients.all()
-        return [ingredient.name for ingredient in ingredients]
+
 class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
     """Ингредиент и количество для создания рецепта."""
     id = serializers.IntegerField()
@@ -169,6 +185,20 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'amount',
+        )
+class RecipeSerializer(serializers.ModelSerializer):
+    """Список рецептов без ингридиентов."""
+    image = Base64ImageField(read_only=True)
+    name = serializers.ReadOnlyField()
+    cooking_time = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
         )
 
 class UserReadSerializer(UserSerializer):

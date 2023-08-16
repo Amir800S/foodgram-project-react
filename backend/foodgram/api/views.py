@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 from django.http import HttpResponse
+from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favourite, Ingredient, RecipeIngredients,
@@ -16,7 +17,9 @@ from .permissions import IsAuthorOrReadOnly
 from .serializers import (IngredientSerializer,
                           TagSerializer,
                           RecipeCreateSerializer,
-                          RecipeReadSerializer,)
+                          RecipeReadSerializer,
+                          RecipeSerializer,
+                          FavouriteSerializer,)
 
 
 class IngredientViewSet(ModelViewSet):
@@ -54,58 +57,70 @@ class RecipeViewSet(ModelViewSet):
             return RecipeReadSerializer
         return RecipeCreateSerializer
 
-    @action(detail=True,
-            url_path='favourite',
-            methods=('post', 'delete'),
-            permission_classes=(IsAuthenticated,))
-    def post_or_delete_favourite(self, request, id):
-        recipe = get_object_or_404(Recipe, id=id)
-        if request.method == 'POST':
-            serializer = RecipeCreateSerializer(recipe, data=request.data)
-            serializer.is_valid(raise_exception=True)
-            if Favourite.objects.filter(
-                    user=request.user,
-                    recipe=recipe).exists():
-                return Response(
-                    'Вы уже добавили этот рецепт!',
-                    status=HTTPStatus.BAD_REQUEST
-                )
-            Favourite.objects.create(user=request.user, recipe=recipe)
-            return Response(serializer.data, status=HTTPStatus.CREATED)
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
-        if request.method == 'DELETE':
-            get_object_or_404(Favourite, user=request.user,
-                              recipe=recipe).delete()
-            return Response('Рецепт удален!',
-                            status=HTTPStatus.NO_CONTENT)
-
-    @action(detail=True,
-            methods=('post', 'delete'),
-            url_path='shopping_cart',
-            permission_classes=(IsAuthenticated,))
-    def create_or_delete_shopping_cart(self, request, id):
-        recipe = get_object_or_404(Recipe, id=id)
-        if request.method == 'POST':
-            serializer = RecipeCreateSerializer(recipe, data=request.data)
-            serializer.is_valid(raise_exception=True)
-            if ShoppingCartList.objects.filter(user=request.user,
-                                               recipe=recipe).exists():
-                ShoppingCartList.objects.create(
-                    user=request.user, recipe=recipe
-                )
-                return Response(
-                    'Рецепт уже добавлен в список!',
-                    status=HTTPStatus.BAD_REQUEST
-                )
-            return Response(serializer.data, status=HTTPStatus.CREATED)
-        if request.method == 'DELETE':
-            get_object_or_404(
-                ShoppingCartList, user=request.user, recipe=recipe
-            ).delete()
-            return Response(
-                'Рецепт удален!',
-                status=HTTPStatus.NO_CONTENT
+    @action(('post', 'delete'),
+            detail=True,
+            permission_classes=(IsAuthenticated, ),
             )
+    def favourite(self, request, pk):
+        user = self.request.user
+        recipe = get_object_or_404(Recipe, id=pk)
+
+        if request.method == 'POST':
+            if Favourite.objects.filter(user=user, recipe=recipe).exists():
+                return Response('Рецепт уже есть в избранном.',
+                                status=status.HTTP_400_BAD_REQUEST,
+                                )
+            serializer = FavouriteSerializer(
+                data={'user': user.id, 'recipe': recipe.id},
+                context={'request': request},
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        if request.method == 'DELETE':
+            if not Favourite.objects.filter(user=user, recipe=recipe).exists():
+                return Response('Рецепта нет в избранном.',
+                                status=status.HTTP_404_NOT_FOUND,
+                                )
+            Favourite.objects.filter(user=user, recipe=recipe).delete()
+            return Response('Рецепт успешно удалён из избранного.',
+                            status=status.HTTP_204_NO_CONTENT
+                            )
+
+    @action(('post', 'delete'),
+            detail=True,
+            permission_classes=(IsAuthenticated, ),
+            )
+    def shopping_cart(self, request, pk):
+        user = self.request.user
+        recipe = get_object_or_404(Recipe, id=pk)
+
+        if request.method == 'POST':
+            if Favourite.objects.filter(user=user, recipe=recipe).exists():
+                return Response('Рецепт уже есть в списке.',
+                                status=status.HTTP_400_BAD_REQUEST,
+                                )
+            serializer = FavouriteSerializer(
+                data={'user': user.id, 'recipe': recipe.id},
+                context={'request': request},
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        if request.method == 'DELETE':
+            if not Favourite.objects.filter(user=user, recipe=recipe).exists():
+                return Response('Рецепта нет в списке.',
+                                status=status.HTTP_404_NOT_FOUND,
+                                )
+            Favourite.objects.filter(user=user, recipe=recipe).delete()
+            return Response('Рецепт успешно удалён из списка.',
+                            status=status.HTTP_204_NO_CONTENT
+                            )
     @action(detail=False,
             methods=('get', ),
             url_path='download_shopping_cart',
