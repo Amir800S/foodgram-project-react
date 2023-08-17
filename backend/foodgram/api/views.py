@@ -83,13 +83,15 @@ class RecipeViewSet(ModelViewSet):
 
         if request.method == 'DELETE':
             if not Favourite.objects.filter(user=user, recipe=recipe).exists():
-                return Response('Рецепта нет в избранном.',
-                                status=status.HTTP_404_NOT_FOUND,
-                                )
+                return Response(
+                    'Рецепта нет в избранном.',
+                    status=status.HTTP_404_NOT_FOUND,
+                )
             Favourite.objects.filter(user=user, recipe=recipe).delete()
-            return Response('Рецепт успешно удалён из избранного.',
-                            status=status.HTTP_204_NO_CONTENT
-                            )
+            return Response(
+                'Рецепт успешно удалён из избранного.',
+                status=status.HTTP_204_NO_CONTENT
+            )
 
     @action(('post', 'delete'),
             detail=True,
@@ -101,9 +103,10 @@ class RecipeViewSet(ModelViewSet):
 
         if request.method == 'POST':
             if Favourite.objects.filter(user=user, recipe=recipe).exists():
-                return Response('Рецепт уже есть в списке.',
-                                status=status.HTTP_400_BAD_REQUEST,
-                                )
+                return Response(
+                    'Рецепт уже есть в списке.',
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             serializer = FavouriteSerializer(
                 data={'user': user.id, 'recipe': recipe.id},
                 context={'request': request},
@@ -114,13 +117,15 @@ class RecipeViewSet(ModelViewSet):
 
         if request.method == 'DELETE':
             if not Favourite.objects.filter(user=user, recipe=recipe).exists():
-                return Response('Рецепта нет в списке.',
-                                status=status.HTTP_404_NOT_FOUND,
-                                )
+                return Response(
+                    'Рецепта нет в списке.',
+                    status=status.HTTP_404_NOT_FOUND,
+                )
             Favourite.objects.filter(user=user, recipe=recipe).delete()
-            return Response('Рецепт успешно удалён из списка.',
-                            status=status.HTTP_204_NO_CONTENT
-                            )
+            return Response(
+                'Рецепт успешно удалён из списка.',
+                status=status.HTTP_204_NO_CONTENT
+            )
     @action(detail=False,
             methods=('get', ),
             url_path='download_shopping_cart',
