@@ -10,7 +10,22 @@ from recipes.models import (Favourite, Ingredient, Recipe, RecipeIngredients,
                             ShoppingCartList, Tag)
 from users.models import Subscribe, User
 
+class UserReadSerializer(UserSerializer):
+    """Чтение пользователей."""
+    is_subscribed = serializers.SerializerMethodField()
 
+    class Meta:
+        model = User
+        fields = ('email', 'id', 'username',
+                  'first_name', 'last_name',
+                  'is_subscribed')
+
+    def get_is_subscribed(self, obj):
+        if (self.context.get('request')
+           and not self.context['request'].user.is_anonymous):
+            return Subscribe.objects.filter(user=self.context['request'].user,
+                                            author=obj).exists()
+        return False
 class UserCreateSerializer(serializers.ModelSerializer):
     """Сериалайзер для создания и получение списка пользователей."""
     is_subscribed = SerializerMethodField()
@@ -228,27 +243,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             'cooking_time'
         )
 
-
-class UserReadSerializer(UserSerializer):
-    """Сериалайзер для чтения пользователя."""
-    is_subscribed = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed'
-        )
-
-    def get_is_subscribed(self, obj):
-        user = self.context.get('request').user
-        return Subscribe.objects.filter(
-            user=user, author=obj
-        ).exists()
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
