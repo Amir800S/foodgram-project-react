@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import (Ingredient, Tag, Recipe, RecipeIngredients,
-                     ShoppingCartList, Favourite)
-from users.models import User, Subscribe
+from users.models import Subscribe, User
+
+from .models import (Favourite, Ingredient, Recipe, RecipeIngredients,
+                     ShoppingCartList, Tag)
 
 
 class UserAdmin(BaseUserAdmin):

@@ -1,11 +1,11 @@
 from colorfield.fields import ColorField
-
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import UniqueConstraint
 
 from users.models import User
+
 
 class Ingredient(models.Model):
     """Модель ингредиента."""

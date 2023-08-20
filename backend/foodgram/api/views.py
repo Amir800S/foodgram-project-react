@@ -1,25 +1,22 @@
 from http import HTTPStatus
 
 from django.http import HttpResponse
-from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import (Favourite, Ingredient, RecipeIngredients,
-                            Recipe, ShoppingCartList, Tag)
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
+from recipes.models import (Favourite, Ingredient, Recipe, RecipeIngredients,
+                            ShoppingCartList, Tag)
 from .permissions import IsAuthorOrReadOnly
-from .serializers import (IngredientSerializer,
-                          TagSerializer,
-                          RecipeCreateSerializer,
-                          RecipeReadSerializer,
-                          RecipeSerializer,
-                          FavouriteSerializer,)
+from .serializers import (FavouriteSerializer, IngredientSerializer,
+                          RecipeCreateSerializer, RecipeReadSerializer,
+                          RecipeSerializer, TagSerializer)
 
 
 class IngredientViewSet(ModelViewSet):
@@ -66,7 +63,7 @@ class RecipeViewSet(ModelViewSet):
             )
     def favourite(self, request, pk):
         user = self.request.user
-        recipe = get_object_or_404(Recipe, id=pk)
+        recipe = get_object_or_404(Recipe, pk=pk)
 
         if request.method == 'POST':
             if Favourite.objects.filter(user=user, recipe=recipe).exists():
@@ -99,7 +96,7 @@ class RecipeViewSet(ModelViewSet):
             )
     def shopping_cart(self, request, pk):
         user = self.request.user
-        recipe = get_object_or_404(Recipe, id=pk)
+        recipe = get_object_or_404(Recipe, pk=pk)
 
         if request.method == 'POST':
             if Favourite.objects.filter(user=user, recipe=recipe).exists():

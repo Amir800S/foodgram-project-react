@@ -1,9 +1,9 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models import UniqueConstraint, CheckConstraint
+from django.db.models import CheckConstraint, UniqueConstraint
 
-from .validators import validate_username, validate_regex_username
+from .validators import validate_regex_username, validate_username
 
 
 class User(AbstractUser):

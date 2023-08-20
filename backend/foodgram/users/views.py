@@ -1,19 +1,18 @@
 from http import HTTPStatus
 
-from rest_framework.decorators import action
-from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.response import Response
 from djoser.views import UserViewSet
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
+from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from api.serializers import (SubscribeSerializer,
-                             UserCreateSerializer,
-                             PasswordChangeSerializer)
-from .permissions import IsAdminAuthorOrReadOnly
+from api.serializers import (PasswordChangeSerializer, SubscribeSerializer,
+                             UserCreateSerializer)
 
-from .models import User, Subscribe
+from .models import Subscribe, User
+from .permissions import IsAdminAuthorOrReadOnly
 
 
 class CustomUserViewSet(UserViewSet):
