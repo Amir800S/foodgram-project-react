@@ -8,8 +8,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from api.serializers import (PasswordChangeSerializer, SubscribeSerializer,
-                             UserCreateSerializer, UserCreationSerializer)
+from api.serializers import (SubscribeSerializer, UserCreateSerializer,
+                             UserCreationSerializer)
 
 from .models import Subscribe, User
 from .permissions import IsAdminAuthorOrReadOnly
@@ -29,10 +29,11 @@ class CustomUserViewSet(UserViewSet):
     )
     def subscriptions(self, request):
         """Получить подписки пользователя."""
+        user = request.user
+        queryset = Subscribe.objects.filter(user=user)
+        page = self.paginate_queryset(queryset)
         serializer = SubscribeSerializer(
-            self.paginate_queryset(
-                Subscribe.objects.filter(user=request.user)
-            ), many=True, context={'request': request}
+            page, many=True, context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
 
@@ -49,9 +50,10 @@ class CustomUserViewSet(UserViewSet):
 
         if request.method == 'POST':
             if user == author:
-                return Response(f'На себя подписаться нельзя',
-                                status=HTTPStatus.BAD_REQUEST
-                                )
+                return Response(
+                    f'На себя подписаться нельзя',
+                    status=HTTPStatus.BAD_REQUEST
+                )
             if obj.exists():
                 return Response(
                     f'Вы уже подписаны на {author.username}',

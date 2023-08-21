@@ -17,6 +17,7 @@ from .permissions import IsAuthorOrReadOnly
 from .serializers import (FavouriteSerializer, IngredientSerializer,
                           RecipeCreateSerializer, RecipeReadSerializer,
                           RecipeSerializer, TagSerializer)
+from .filters import RecipeFilter
 
 
 class IngredientViewSet(ModelViewSet):
@@ -41,6 +42,7 @@ class RecipeViewSet(ModelViewSet):
     pagination_class = LimitOffsetPagination
     permission_classes = (IsAuthorOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
     http_method_names = (
         'delete',
         'post',
