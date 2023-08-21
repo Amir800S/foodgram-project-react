@@ -9,9 +9,11 @@ class RecipeFilter(FilterSet):
         queryset=Tag.objects.all()
     )
     is_favourited = filters.BooleanFilter(
-        method='is_favourited_filter')
+        method='is_favourited_filter'
+    )
     is_in_shopping_cart = filters.BooleanFilter(
-        method='is_in_shopping_cart_filter')
+        method='is_in_shopping_cart_filter'
+    )
 
     class Meta:
         model = Recipe
@@ -20,11 +22,11 @@ class RecipeFilter(FilterSet):
     def is_favourited_filter(self, queryset, name, value):
         user = self.request.user
         if value and user.is_authenticated:
-            return queryset.filter(favourite_recipe__user=user)
+            return queryset.filter(favourites__user=user)
         return queryset
 
     def is_in_shopping_cart_filter(self, queryset, name, value):
         user = self.request.user
         if value and user.is_authenticated:
-            return queryset.filter(shopping_recipe__user=user)
+            return queryset.filter(shopping_cart__user=user)
         return queryset
