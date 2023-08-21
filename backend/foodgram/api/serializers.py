@@ -10,6 +10,7 @@ from recipes.models import (Favourite, Ingredient, Recipe, RecipeIngredients,
                             ShoppingCartList, Tag)
 from users.models import Subscribe, User
 
+
 class UserReadSerializer(UserSerializer):
     """Чтение пользователей."""
     is_subscribed = serializers.SerializerMethodField()
