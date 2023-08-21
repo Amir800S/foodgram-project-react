@@ -40,7 +40,7 @@ class UserReadSerializer(UserSerializer):
             return Subscribe.objects.filter(user=self.context['request'].user,
                                             author=obj).exists()
         return False
-class UserCreateSerializer(serializers.ModelSerializer):
+class UserCreateSerializer(UserSerializer):
     """Сериалайзер для создания и получение списка пользователей."""
     is_subscribed = SerializerMethodField()
 
