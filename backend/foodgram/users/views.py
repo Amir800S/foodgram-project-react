@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from api.serializers import (PasswordChangeSerializer, SubscribeSerializer,
-                             UserCreateSerializer)
+                             UserCreateSerializer, UserCreationSerializer)
 
 from .models import Subscribe, User
 from .permissions import IsAdminAuthorOrReadOnly
@@ -18,9 +18,10 @@ from .permissions import IsAdminAuthorOrReadOnly
 class CustomUserViewSet(UserViewSet):
     """Вьюсет для модели User и Subscribe."""
     queryset = User.objects.all()
-    serializer_class = UserCreateSerializer
+    permission_classes = (AllowAny,)
+    http_method_names = ('patch', 'post', 'get', 'delete',)
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsAdminAuthorOrReadOnly, )
+    serializer_class = UserCreationSerializer
 
     @action(
         methods=('get', ),

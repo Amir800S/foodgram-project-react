@@ -10,6 +10,19 @@ from recipes.models import (Favourite, Ingredient, Recipe, RecipeIngredients,
                             ShoppingCartList, Tag)
 from users.models import Subscribe, User
 
+class UserCreationSerializer(serializers.ModelSerializer):
+    """Создание пользователей."""
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'password',
+        )
 
 class UserReadSerializer(UserSerializer):
     """Чтение пользователей."""
