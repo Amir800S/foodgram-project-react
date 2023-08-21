@@ -18,10 +18,9 @@ from .permissions import IsAdminAuthorOrReadOnly
 class CustomUserViewSet(UserViewSet):
     """Вьюсет для модели User и Subscribe."""
     queryset = User.objects.all()
-    permission_classes = (AllowAny,)
-    http_method_names = ('patch', 'post', 'get', 'delete',)
-    pagination_class = LimitOffsetPagination
     serializer_class = UserCreationSerializer
+    pagination_class = LimitOffsetPagination
+    permission_classes = (AllowAny, )
 
     @action(
         methods=('get', ),
