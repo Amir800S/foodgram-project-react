@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+from django.db.models import Sum
 from django.http import FileResponse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -23,8 +24,9 @@ from recipes.models import (Favourite, Ingredient, Recipe, RecipeIngredients,
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (FavouriteSerializer, IngredientSerializer,
                           RecipeCreateSerializer, RecipeReadSerializer,
-                          RecipeSerializer, TagSerializer)
+                          RecipeSerializer, RecipeIngredientSerializer, TagSerializer)
 from .filters import RecipeFilter
+from foodgram.settings import FILE_NAME
 
 
 class IngredientViewSet(ModelViewSet):
@@ -104,7 +106,7 @@ class RecipeViewSet(ModelViewSet):
             permission_classes=(IsAuthenticated, ),
             )
     def shopping_cart(self, request, **kwargs):
-        recipe = get_object_or_404(RecipeIngredients, id=kwargs['pk'])
+        recipe = get_object_or_404(Recipe, id=kwargs['pk'])
         if request.method == 'POST':
             serializer = RecipeSerializer(recipe, data=request.data,
                                           context={"request": request})
@@ -125,24 +127,21 @@ class RecipeViewSet(ModelViewSet):
                 {'detail': 'Рецепт успешно удален из списка покупок.'},
                 status=status.HTTP_204_NO_CONTENT
             )
-    @action(detail=False,
-            methods=('get', ),
-            url_path='download_shopping_cart',
+    @action(detail=False, methods=('get', ),
             permission_classes=(IsAuthenticated,))
-    def download_pdf(self, request):
-        user = request.user
-        purchases = ShoppingCartList.objects.filter(user=user)
-        buffer = BytesIO()
-        p = canvas.Canvas(buffer, pagesize=letter)
-        p.drawString(100, 750, "Список покупок:")
-        y = 730
-        for purchase in purchases:
-            p.drawString(100, y, f'Продукт: {purchase.recipe}')
-            p.drawString(100, y - 20, f'Масса: {purchase.recipe.amount}')
-            y -= 40
-        p.showPage()
-        p.save()
-        buffer.seek(0)
-        response = HttpResponse(buffer, content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="purchases.pdf"'
-        return response
+    def download_shopping_cart(self, request, **kwargs):
+        ingredients = (
+            RecipeIngredients.objects
+            .filter(recipe__shopping_recipe__user=request.user)
+            .values('ingredient')
+            .annotate(total_amount=Sum('amount'))
+            .values_list('ingredient__name', 'total_amount',
+                         'ingredient__measurement_unit')
+        )
+        file_list = []
+        [file_list.append(
+            '{} - {} {}.'.format(*ingredient)) for ingredient in ingredients]
+        file = HttpResponse('Cписок покупок:\n' + '\n'.join(file_list),
+                            content_type='text/plain')
+        file['Content-Disposition'] = (f'attachment; filename={FILE_NAME}')
+        return file

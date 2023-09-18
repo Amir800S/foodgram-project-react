@@ -9,7 +9,7 @@ from rest_framework.validators import UniqueTogetherValidator
 from recipes.models import (Favourite, Ingredient, Recipe, RecipeIngredients,
                             ShoppingCartList, Tag)
 from users.models import Subscribe, User
-
+from rest_framework import status
 class UserCreationSerializer(UserCreateSerializer):
     """Создание пользователей."""
     class Meta:
@@ -279,3 +279,20 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return RecipeReadSerializer(
             instance, context=self.context
         ).data
+class ShoppingCartSerializer(RecipeSerializer):
+    """Сериализатор добавления рецепта в корзину"""
+    name = serializers.ReadOnlyField()
+    cooking_time = serializers.ReadOnlyField()
+
+    class Meta(RecipeSerializer.Meta):
+        fields = ("id", "name", "image", "cooking_time")
+
+    def validate(self, data):
+        recipe = self.instance
+        user = self.context.get('request').user
+        if ShoppingCartList.objects.filter(recipe=recipe, user=user).exists():
+            raise serializers.ValidationError(
+                detail='Рецепт уже добавлен в корзину',
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        return data

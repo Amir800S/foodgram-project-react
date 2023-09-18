@@ -149,3 +149,4 @@ INGREDIENT_UNIT = 7
 TAG_NAME = 80
 TAG_SLUG = 100
 TAG_COLOR = 7
+FILE_NAME = 'shopping_cart.txt'
