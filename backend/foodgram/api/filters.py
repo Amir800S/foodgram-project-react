@@ -17,7 +17,10 @@ class RecipeFilter(FilterSet):
 
     class Meta:
         model = Recipe
-        fields = ('tags', 'author',)
+        fields = (
+            'tags',
+            'author',
+        )
 
     def is_favourited_filter(self, queryset, name, value):
         user = self.request.user
