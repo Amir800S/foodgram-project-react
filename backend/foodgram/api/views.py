@@ -13,10 +13,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 # pdf
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from django.http import HttpResponse
 from io import BytesIO
 # pdf
 from recipes.models import (Favourite, Ingredient, Recipe, RecipeIngredients,
@@ -127,7 +128,8 @@ class RecipeViewSet(ModelViewSet):
                 {'detail': 'Рецепт успешно удален из списка покупок.'},
                 status=status.HTTP_204_NO_CONTENT
             )
-    @action(detail=False, methods=('get', ),
+
+    @action(detail=False, methods=('get',),
             permission_classes=(IsAuthenticated,))
     def download_shopping_cart(self, request, **kwargs):
         ingredients = (
@@ -141,7 +143,18 @@ class RecipeViewSet(ModelViewSet):
         file_list = []
         [file_list.append(
             '{} - {} {}.'.format(*ingredient)) for ingredient in ingredients]
-        file = HttpResponse('Cписок покупок:\n' + '\n'.join(file_list),
-                            content_type='text/plain')
-        file['Content-Disposition'] = (f'attachment; filename={FILE_NAME}')
-        return file
+        buffer = BytesIO()
+        p = canvas.Canvas(buffer, pagesize=letter)
+        pdfmetrics.registerFont(TTFont('Arial', 'arial.ttf'))
+        p.setFont('Arial', 12)
+        p.drawString(100, 750, "Список покупок:")
+        y = 730
+        for ingredient in file_list:
+            p.drawString(100, y, ingredient)
+            y -= 20
+        p.showPage()
+        p.save()
+        buffer.seek(0)
+        response = HttpResponse(buffer, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="purchases.pdf"'
+        return response

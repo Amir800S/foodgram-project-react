@@ -6,10 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="a6e8d0f4-7d66-4726-902a-0564643b54ff" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/foodgram/api/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/foodgram/api/serializers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/foodgram/api/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/foodgram/api/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/foodgram/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/backend/foodgram/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/foodgram/recipes/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/foodgram/recipes/models.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -167,21 +164,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/backend/foodgram/api/views.py</url>
-          <line>105</line>
-          <option name="timeStamp" value="6" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/backend/foodgram/api/views.py</url>
-          <line>106</line>
-          <option name="timeStamp" value="7" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
