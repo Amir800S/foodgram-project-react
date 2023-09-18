@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+from django.http import FileResponse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -10,7 +11,13 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-
+# pdf
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from io import BytesIO
+# pdf
 from recipes.models import (Favourite, Ingredient, Recipe, RecipeIngredients,
                             ShoppingCartList, Tag)
 from .permissions import IsAuthorOrReadOnly
@@ -96,33 +103,26 @@ class RecipeViewSet(ModelViewSet):
             detail=True,
             permission_classes=(IsAuthenticated, ),
             )
-    def shopping_cart(self, request, pk):
-        user = self.request.user
-        recipe = get_object_or_404(Recipe, pk=pk)
-
+    def shopping_cart(self, request, **kwargs):
+        recipe = get_object_or_404(RecipeIngredients, id=kwargs['pk'])
         if request.method == 'POST':
-            if Favourite.objects.filter(user=user, recipe=recipe).exists():
-                return Response(
-                    'Рецепт уже есть в списке.',
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            serializer = FavouriteSerializer(
-                data={'user': user.id, 'recipe': recipe.id},
-                context={'request': request},
-            )
+            serializer = RecipeSerializer(recipe, data=request.data,
+                                          context={"request": request})
             serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+            if not ShoppingCartList.objects.filter(user=request.user,
+                                                recipe=recipe).exists():
+                ShoppingCartList.objects.create(user=request.user, recipe=recipe)
+                return Response(f'Рецепт добавлен в список покупок!',
+                                status=status.HTTP_201_CREATED
+                                )
+            return Response({'errors': 'Рецепт уже в списке покупок.'},
+                            status=status.HTTP_400_BAD_REQUEST
+                            )
         if request.method == 'DELETE':
-            if not Favourite.objects.filter(user=user, recipe=recipe).exists():
-                return Response(
-                    'Рецепта нет в списке.',
-                    status=status.HTTP_404_NOT_FOUND,
-                )
-            Favourite.objects.filter(user=user, recipe=recipe).delete()
+            get_object_or_404(ShoppingCartList, user=request.user,
+                              recipe=recipe).delete()
             return Response(
-                'Рецепт успешно удалён из списка.',
+                {'detail': 'Рецепт успешно удален из списка покупок.'},
                 status=status.HTTP_204_NO_CONTENT
             )
     @action(detail=False,
@@ -130,6 +130,19 @@ class RecipeViewSet(ModelViewSet):
             url_path='download_shopping_cart',
             permission_classes=(IsAuthenticated,))
     def download_pdf(self, request):
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="shopping_list.pdf"'
+        user = request.user
+        purchases = ShoppingCartList.objects.filter(user=user)
+        buffer = BytesIO()
+        p = canvas.Canvas(buffer, pagesize=letter)
+        p.drawString(100, 750, "Список покупок:")
+        y = 730
+        for purchase in purchases:
+            p.drawString(100, y, f'Продукт: {purchase.recipe}')
+            p.drawString(100, y - 20, f'Масса: {purchase.recipe.amount}')
+            y -= 40
+        p.showPage()
+        p.save()
+        buffer.seek(0)
+        response = HttpResponse(buffer, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="purchases.pdf"'
         return response

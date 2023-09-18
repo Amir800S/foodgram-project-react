@@ -164,7 +164,7 @@ class ShoppingCartList(models.Model):
         verbose_name='Пользователь',
     )
     recipe = models.ForeignKey(
-        Recipe,
+        RecipeIngredients,
         on_delete=models.CASCADE,
         related_name='shopping_cart',
         verbose_name='Рецепт',
