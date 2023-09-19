@@ -117,11 +117,11 @@ class RecipeViewSet(ModelViewSet):
             detail=True,
             permission_classes=(IsAuthenticated, ),
             )
-    def shopping_cart(self, request, **kwargs):
-        recipe = get_object_or_404(Recipe, id=kwargs['pk'])
+    def shopping_cart(self, request, pk):
+        recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':
             serializer = RecipeSerializer(recipe, data=request.data,
-                                          context={"request": request})
+                                          context={'request': request})
             serializer.is_valid(raise_exception=True)
             if not ShoppingCartList.objects.filter(user=request.user,
                                                 recipe=recipe).exists():
@@ -141,8 +141,9 @@ class RecipeViewSet(ModelViewSet):
             )
 
     @action(detail=False, methods=('get',),
-            permission_classes=(IsAuthenticated,))
-    def download_shopping_cart(self, request, **kwargs):
+            permission_classes=(IsAuthenticated,),
+            )
+    def download_shopping_cart(self, request):
         ingredients = (
             RecipeIngredients.objects
             .filter(recipe__shopping_recipe__user=request.user)

@@ -7,13 +7,15 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
 
 from api.serializers import (SubscribeSerializer, UserCreateSerializer,
                              UserCreationSerializer)
 
 from .models import Subscribe, User
 from .permissions import IsAdminAuthorOrReadOnly
-
+from .pagination import PageLimitPagination
 
 class CustomUserViewSet(UserViewSet):
     """Вьюсет для модели User и Subscribe."""
@@ -22,19 +24,15 @@ class CustomUserViewSet(UserViewSet):
     pagination_class = LimitOffsetPagination
     permission_classes = (AllowAny, )
 
-    @action(
-        methods=('get', ),
-        detail=False,
-        permission_classes=(IsAuthenticated,),
-    )
+    @action(detail=False, url_path='subscriptions',
+            url_name='subscriptions', permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
-        """Получить подписки пользователя."""
+        """Список авторов, на которых подписан пользователь."""
         user = request.user
-        queryset = Subscribe.objects.filter(user=user)
-        page = self.paginate_queryset(queryset)
-        serializer = SubscribeSerializer(
-            page, many=True, context={'request': request}
-        )
+        queryset = user.subscriber.all()
+        pages = self.paginate_queryset(queryset)
+        serializer = SubscriptionSerializer(
+            pages, many=True, context={'request': request})
         return self.get_paginated_response(serializer.data)
 
     @action(
