@@ -7,13 +7,15 @@
     <list default="true" id="a6e8d0f4-7d66-4726-902a-0564643b54ff" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/foodgram/api/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/foodgram/api/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/foodgram/api/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/foodgram/api/views.py" afterDir="false" />
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/backend/foodgram/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/backend/foodgram/db.sqlite3" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/foodgram/recipes/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/foodgram/recipes/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/foodgram/users/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/foodgram/users/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/backend/requirements.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/infra/nginx.conf" beforeDir="false" afterPath="$PROJECT_DIR$/infra/nginx.conf" afterDir="false" />
+=======
+>>>>>>> parent of 14c5da22 (psql connected)
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

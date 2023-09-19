@@ -19,24 +19,12 @@ from reportlab.pdfbase.ttfonts import TTFont
 from django.http import HttpResponse
 from io import BytesIO
 
-from recipes.models import (
-    Favourite,
-    Ingredient,
-    Recipe,
-    RecipeIngredients,
-    ShoppingCartList,
-    Tag
-)
+from recipes.models import (Favourite, Ingredient, Recipe, RecipeIngredients,
+                            ShoppingCartList, Tag)
 from .permissions import IsAuthorOrReadOnly
-from .serializers import (
-    FavouriteSerializer,
-    IngredientSerializer,
-    RecipeCreateSerializer,
-    RecipeReadSerializer,
-    RecipeSerializer,
-    RecipeIngredientSerializer,
-    TagSerializer
-)
+from .serializers import (FavouriteSerializer, IngredientSerializer,
+                          RecipeCreateSerializer, RecipeReadSerializer,
+                          RecipeSerializer, RecipeIngredientSerializer, TagSerializer)
 from .filters import RecipeFilter
 from foodgram.settings import FILE_NAME
 
@@ -84,7 +72,7 @@ class RecipeViewSet(ModelViewSet):
             detail=True,
             permission_classes=(IsAuthenticated, ),
             )
-    def favorite(self, request, pk):
+    def favourite(self, request, pk):
         user = self.request.user
         recipe = get_object_or_404(Recipe, pk=pk)
 
@@ -149,11 +137,8 @@ class RecipeViewSet(ModelViewSet):
             .filter(recipe__shopping_recipe__user=request.user)
             .values('ingredient')
             .annotate(total_amount=Sum('amount'))
-            .values_list(
-                'ingredient__name',
-                'total_amount',
-                'ingredient__measurement_unit'
-            )
+            .values_list('ingredient__name', 'total_amount',
+                         'ingredient__measurement_unit')
         )
         file_list = []
         [file_list.append(
@@ -171,6 +156,5 @@ class RecipeViewSet(ModelViewSet):
         p.save()
         buffer.seek(0)
         response = HttpResponse(buffer, content_type='application/pdf')
-        response[
-            'Content-Disposition'] = 'attachment; filename="purchases.pdf"'
+        response['Content-Disposition'] = 'attachment; filename="purchases.pdf"'
         return response
