@@ -129,9 +129,8 @@ class RecipeViewSet(ModelViewSet):
             )
 
     @action(detail=False, methods=('get',),
-            permission_classes=(IsAuthenticated,),
-            )
-    def download_shopping_cart(self, request):
+            permission_classes=(IsAuthenticated,))
+    def download_shopping_cart(self, request, **kwargs):
         ingredients = (
             RecipeIngredients.objects
             .filter(recipe__shopping_recipe__user=request.user)
@@ -145,7 +144,7 @@ class RecipeViewSet(ModelViewSet):
             '{} - {} {}.'.format(*ingredient)) for ingredient in ingredients]
         buffer = BytesIO()
         p = canvas.Canvas(buffer, pagesize=letter)
-        pdfmetrics.registerFont(TTFont('Arial', 'arial.ttf'))
+        pdfmetrics.registerFont(TTFont('Arial', './recipes/fonts/arial.ttf'))
         p.setFont('Arial', 12)
         p.drawString(100, 750, "Список покупок:")
         y = 730
