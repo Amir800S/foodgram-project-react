@@ -34,15 +34,15 @@ class Tag(models.Model):
         unique=True,
         max_length=settings.TAG_NAME
     )
-    slug = models.SlugField(
-        'Слаг',
-        unique=True,
-        max_length=settings.TAG_SLUG
-    )
     color = models.CharField(
         'Цветовой HEX-код',
         null=True,
         max_length=settings.TAG_COLOR
+    )
+    slug = models.SlugField(
+        'Слаг',
+        unique=True,
+        max_length=settings.TAG_SLUG
     )
 
     class Meta:
