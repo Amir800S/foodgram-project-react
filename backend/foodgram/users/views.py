@@ -3,7 +3,6 @@ from http import HTTPStatus
 from djoser.views import UserViewSet
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
-from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -20,12 +19,13 @@ from api.serializers import (
 from .models import Subscribe, User
 from .permissions import IsAdminAuthorOrReadOnly
 from .pagination import PageLimitPagination
+from api.pagination import PageLimitPagination
 
 class CustomUserViewSet(UserViewSet):
     """Вьюсет для модели User и Subscribe."""
     queryset = User.objects.all()
     serializer_class = UserCreationSerializer
-    pagination_class = LimitOffsetPagination
+    pagination_class = PageLimitPagination
     permission_classes = (AllowAny, )
 
     @action(detail=False, url_path='subscriptions',
@@ -34,10 +34,11 @@ class CustomUserViewSet(UserViewSet):
         """Список авторов, на которых подписан пользователь."""
         user = request.user
         queryset = user.subscriber.all()
-        pages = self.paginate_queryset(queryset)
+        paginator = PageLimitPagination()
+        result_page = paginator.paginate_queryset(queryset, request, view=self)
         serializer = SubscriptionSerializer(
-            pages, many=True, context={'request': request})
-        return self.get_paginated_response(serializer.data)
+            result_page, many=True, context={'request': request})
+        return Response(serializer.data)
 
     @action(
         methods=('post', 'delete', ),
