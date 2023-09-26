@@ -24,8 +24,10 @@ from recipes.models import (Favourite, Ingredient, Recipe, RecipeIngredients,
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (FavouriteSerializer, IngredientSerializer,
                           RecipeCreateSerializer, RecipeReadSerializer,
-                          RecipeSerializer, RecipeIngredientSerializer, TagSerializer)
-from .filters import RecipeFilter
+                          ShoppingCartSerializer,
+                          RecipeSerializer, RecipeIngredientSerializer,
+                          TagSerializer)
+from .filters import RecipeFilter, IngredientFilter
 from foodgram.settings import FILE_NAME
 
 
@@ -34,7 +36,7 @@ class IngredientViewSet(ModelViewSet):
     queryset = Ingredient.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = IngredientSerializer
-    filter_backends = (SearchFilter,)
+    filter_backends = (IngredientFilter,)
     search_fields = ('^name',)
 
 
@@ -108,7 +110,7 @@ class RecipeViewSet(ModelViewSet):
     def shopping_cart(self, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':
-            serializer = RecipeSerializer(recipe, data=request.data,
+            serializer = ShoppingCartSerializer(recipe, data=request.data,
                                           context={'request': request})
             serializer.is_valid(raise_exception=True)
             if not ShoppingCartList.objects.filter(user=request.user,
