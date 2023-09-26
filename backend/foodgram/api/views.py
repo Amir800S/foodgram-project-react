@@ -29,6 +29,7 @@ from .serializers import (FavouriteSerializer, IngredientSerializer,
                           TagSerializer)
 from .filters import RecipeFilter, IngredientFilter
 from foodgram.settings import FILE_NAME
+from .pagination import PageLimitPagination
 
 
 class IngredientViewSet(ModelViewSet):
@@ -50,7 +51,7 @@ class TagViewSet(ReadOnlyModelViewSet):
 class RecipeViewSet(ModelViewSet):
     """Вьюсет рецептов."""
     queryset = Recipe.objects.all()
-    pagination_class = LimitOffsetPagination
+    pagination_class = PageLimitPagination
     permission_classes = (IsAuthorOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
