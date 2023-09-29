@@ -81,3 +81,15 @@ class CustomUserViewSet(UserViewSet):
             f'Вы уже отписались от {author.username}',
             status=HTTPStatus.BAD_REQUEST
         )
+    @action(detail=False, methods=('get',))
+    def me(self, request):
+        user = request.user
+        data = {
+            'email': user.email,
+            'id': user.id,
+            'username': user.username,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'is_subscribed': False
+        }
+        return Response(data)
