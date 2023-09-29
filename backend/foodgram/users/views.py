@@ -18,14 +18,16 @@ from api.serializers import (
 
 from .models import Subscribe, User
 from .permissions import IsAdminAuthorOrReadOnly
-from .pagination import PageLimitPagination
+# delete
+from .pagination import PageLimitPagination, CustomPageNumberPagination
+# delete
 from api.pagination import PageLimitPagination
 
 class CustomUserViewSet(UserViewSet):
     """Вьюсет для модели User и Subscribe."""
     queryset = User.objects.all()
     serializer_class = UserCreationSerializer
-    pagination_class = PageLimitPagination
+    pagination_class = CustomPageNumberPagination
     permission_classes = (AllowAny, )
 
     @action(detail=False, url_path='subscriptions',
@@ -34,11 +36,11 @@ class CustomUserViewSet(UserViewSet):
         """Список авторов, на которых подписан пользователь."""
         user = request.user
         queryset = user.subscriber.all()
-        paginator = PageLimitPagination()
+        paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(queryset, request, view=self)
         serializer = SubscriptionSerializer(
             result_page, many=True, context={'request': request})
-        return Response(serializer.data)
+        return paginator.get_paginated_response(serializer.data)
 
     @action(
         methods=('post', 'delete', ),
