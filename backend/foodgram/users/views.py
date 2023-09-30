@@ -6,8 +6,6 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView
 
 from api.serializers import (
     SubscribeSerializer,
@@ -15,13 +13,9 @@ from api.serializers import (
     UserCreateSerializer,
     UserCreationSerializer
 )
-
 from .models import Subscribe, User
 from .permissions import IsAdminAuthorOrReadOnly
-# delete
 from .pagination import PageLimitPagination, CustomPageNumberPagination
-# delete
-from api.pagination import PageLimitPagination
 
 class CustomUserViewSet(UserViewSet):
     """Вьюсет для модели User и Subscribe."""
@@ -31,7 +25,7 @@ class CustomUserViewSet(UserViewSet):
     permission_classes = (AllowAny, )
 
     @action(detail=False, url_path='subscriptions',
-            url_name='subscriptions', permission_classes=[IsAuthenticated])
+            url_name='subscriptions', permission_classes=(IsAuthenticated, ))
     def subscriptions(self, request):
         """Список авторов, на которых подписан пользователь."""
         user = request.user
@@ -83,6 +77,7 @@ class CustomUserViewSet(UserViewSet):
         )
     @action(detail=False, methods=('get',))
     def me(self, request):
+        """Информация о пользователе."""
         user = request.user
         data = {
             'email': user.email,

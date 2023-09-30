@@ -5,11 +5,11 @@ from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 from rest_framework.validators import UniqueTogetherValidator
+from rest_framework import status
 
 from recipes.models import (Favourite, Ingredient, Recipe, RecipeIngredients,
                             ShoppingCartList, Tag)
 from users.models import Subscribe, User
-from rest_framework import status
 class UserCreationSerializer(UserCreateSerializer):
     """Создание пользователей."""
     class Meta:
@@ -59,7 +59,7 @@ class SubscribeShortRecipeSerializer(serializers.ModelSerializer):
 
 
 class SubscribeSerializer(serializers.ModelSerializer):
-    """Сериалайзер подписок пользователя."""
+    """Сериалайзер для вывода подписок пользователя."""
     is_subscribed = SerializerMethodField()
     recipes_count = SerializerMethodField()
     recipes = SerializerMethodField()
@@ -93,6 +93,7 @@ class SubscribeSerializer(serializers.ModelSerializer):
         ).exists()
 
 class SubscriptionSerializer(serializers.ModelSerializer):
+    """Сериалайзер для подписки."""
     email = serializers.ReadOnlyField(source='author.email')
     id = serializers.ReadOnlyField(source='author.id')
     username = serializers.ReadOnlyField(source='author.username')

@@ -122,12 +122,19 @@ DJOSER = {
         'user_create': 'api.serializers.UserCreationSerializer',
     },
     'LOGIN_FIELD': 'email',
+    'HIDE_USERS': False,
+    'PERMISSIONS': {
+        'user': ['api.permissions.IsAdminOrReadOnly'],
+        'user_list': ['rest_framework.permissions.AllowAny'],
+        'user_delete': ['rest_framework.permissions.IsAdminUser'],
+    },
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
 
+# ======= Константы для моделей =======
 EMAIL_MAX_LENGHT = 254
 USERNAME_MAX_LENGHT = 150
 FIRST_USERNAME_MAX_LENGHT = 150
@@ -141,4 +148,5 @@ INGREDIENT_UNIT = 7
 TAG_NAME = 80
 TAG_SLUG = 100
 TAG_COLOR = 7
-FILE_NAME = 'shopping_cart.txt'
+
+FILE_NAME = 'shopping_cart.txt' # Имя файла-списка покупок
