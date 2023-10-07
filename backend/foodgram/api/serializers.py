@@ -165,13 +165,15 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
     """Ингредиенты для рецепта."""
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit'
+    )
     class Meta:
         model = RecipeIngredients
         fields = (
-            'id',
-            'recipe',
-            'ingredient',
-            'amount',
+            'id', 'name', 'measurement_unit', 'amount'
         )
 
 

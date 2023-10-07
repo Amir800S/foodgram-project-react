@@ -56,14 +56,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-# if DEBUG:
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.sqlite3',
-#             'NAME': BASE_DIR / 'db.sqlite3',
-#         }
-#     }
-# else:
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -144,7 +136,7 @@ INGREDIENT_MIN_AMOUNT = 1
 RECIPE_NAME = 200
 RECIPE_TEXT = 500
 INGREDIENT_NAME = 150
-INGREDIENT_UNIT = 7
+INGREDIENT_UNIT = 20
 TAG_NAME = 80
 TAG_SLUG = 100
 TAG_COLOR = 7
