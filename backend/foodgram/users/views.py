@@ -5,7 +5,6 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
 
 from api.serializers import (
     SubscribeSerializer,
@@ -14,7 +13,6 @@ from api.serializers import (
     UserCreationSerializer
 )
 from .models import Subscribe, User
-from .permissions import IsAdminAuthorOrReadOnly
 from .pagination import PageLimitPagination, CustomPageNumberPagination
 
 class CustomUserViewSet(UserViewSet):
