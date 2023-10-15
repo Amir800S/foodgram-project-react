@@ -5,10 +5,8 @@ from django.http import FileResponse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
@@ -82,7 +80,7 @@ class RecipeViewSet(ModelViewSet):
         if request.method == 'POST':
             if Favourite.objects.filter(user=user, recipe=recipe).exists():
                 return Response('Рецепт уже есть в избранном.',
-                                status=status.HTTP_400_BAD_REQUEST,
+                                status=HTTPStatus.BAD_REQUEST,
                                 )
             serializer = FavouriteSerializer(
                 data={'user': user.id, 'recipe': recipe.id},
@@ -90,18 +88,18 @@ class RecipeViewSet(ModelViewSet):
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=HTTPStatus.CREATED)
 
         if request.method == 'DELETE':
             if not Favourite.objects.filter(user=user, recipe=recipe).exists():
                 return Response(
                     'Рецепта нет в избранном.',
-                    status=status.HTTP_404_NOT_FOUND,
+                    status=HTTPStatus.NOT_FOUND,
                 )
             Favourite.objects.filter(user=user, recipe=recipe).delete()
             return Response(
                 'Рецепт успешно удалён из избранного.',
-                status=status.HTTP_204_NO_CONTENT
+                status=HTTPStatus.NO_CONTENT
             )
 
     @action(('post', 'delete'),
@@ -118,17 +116,17 @@ class RecipeViewSet(ModelViewSet):
                                                 recipe=recipe).exists():
                 ShoppingCartList.objects.create(user=request.user, recipe=recipe)
                 return Response(f'Рецепт добавлен в список покупок!',
-                                status=status.HTTP_201_CREATED
+                                status=HTTPStatus.CREATED
                                 )
             return Response({'errors': 'Рецепт уже в списке покупок.'},
-                            status=status.HTTP_400_BAD_REQUEST
+                            status=HTTPStatus.BAD_REQUEST
                             )
         if request.method == 'DELETE':
             get_object_or_404(ShoppingCartList, user=request.user,
                               recipe=recipe).delete()
             return Response(
                 {'detail': 'Рецепт успешно удален из списка покупок.'},
-                status=status.HTTP_204_NO_CONTENT
+                status=HTTPStatus.NO_CONTENT
             )
 
     @action(detail=False, methods=('get',),
