@@ -1,33 +1,31 @@
 from http import HTTPStatus
+from io import BytesIO
 
 from django.db.models import Sum
-from django.http import FileResponse
-from django.http import HttpResponse
+from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from recipes.models import (Favourite, Ingredient, Recipe, RecipeIngredients,
+                            ShoppingCartList, Tag)
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from django.http import HttpResponse
-from io import BytesIO
 
-from recipes.models import (Favourite, Ingredient, Recipe, RecipeIngredients,
-                            ShoppingCartList, Tag)
+from foodgram.settings import FILE_NAME
+
+from .filters import IngredientFilter, RecipeFilter
+from .pagination import PageLimitPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (FavouriteSerializer, IngredientSerializer,
-                          RecipeCreateSerializer, RecipeReadSerializer,
-                          ShoppingCartSerializer,
-                          RecipeSerializer, RecipeIngredientSerializer,
-                          TagSerializer)
-from .filters import RecipeFilter, IngredientFilter
-from foodgram.settings import FILE_NAME
-from .pagination import PageLimitPagination
+                          RecipeCreateSerializer, RecipeIngredientSerializer,
+                          RecipeReadSerializer, RecipeSerializer,
+                          ShoppingCartSerializer, TagSerializer)
 
 
 class IngredientViewSet(ModelViewSet):
