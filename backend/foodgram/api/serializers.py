@@ -2,14 +2,14 @@ from django.contrib.auth import authenticate
 from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_base64.fields import Base64ImageField
-from rest_framework import serializers
-from rest_framework.fields import SerializerMethodField
-from rest_framework.validators import UniqueTogetherValidator
-from rest_framework import status
-
 from recipes.models import (Favourite, Ingredient, Recipe, RecipeIngredients,
                             ShoppingCartList, Tag)
+from rest_framework import serializers, status
+from rest_framework.fields import SerializerMethodField
+from rest_framework.validators import UniqueTogetherValidator
 from users.models import Subscribe, User
+
+
 class UserCreationSerializer(UserCreateSerializer):
     """Создание пользователей."""
     class Meta:
