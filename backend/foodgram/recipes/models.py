@@ -27,7 +27,9 @@ class Ingredient(models.Model):
 class Tag(models.Model):
     """Модель тэга."""
 
-    name = models.CharField("Название тэга", unique=True, max_length=settings.TAG_NAME)
+    name = models.CharField(
+        "Название тэга", unique=True, max_length=settings.TAG_NAME
+    )
     color = models.CharField(
         "Цветовой HEX-код", null=True, max_length=settings.TAG_COLOR
     )
@@ -61,9 +63,15 @@ class Recipe(models.Model):
         "О рецепте",
         max_length=settings.RECIPE_TEXT,
     )
-    image = models.ImageField("Изображение рецепта", upload_to="recipes/")
-    name = models.CharField("Название рецепта", max_length=settings.RECIPE_NAME)
-    tags = models.ManyToManyField(Tag, related_name="recipes", verbose_name="Тэги")
+    image = models.ImageField(
+        "Изображение рецепта", upload_to="recipes/"
+    )
+    name = models.CharField(
+        "Название рецепта", max_length=settings.RECIPE_NAME
+    )
+    tags = models.ManyToManyField(
+        Tag, related_name="recipes", verbose_name="Тэги"
+    )
 
     class Meta:
         ordering = ("-id",)
@@ -93,7 +101,9 @@ class Favourite(models.Model):
     class Meta:
         verbose_name = "Избранный рецепт"
         verbose_name_plural = "Избранные рецепты"
-        constraints = [UniqueConstraint(fields=["user", "recipe"], name="favourites")]
+        constraints = [
+            UniqueConstraint(fields=["user", "recipe"], name="favourites")
+        ]
 
     def __str__(self):
         return "{} В Избранном у {}".format(self.recipe, self.user)
@@ -125,7 +135,8 @@ class RecipeIngredients(models.Model):
 
     def __str__(self):
         return (
-            f"В рецепте {self.recipe}, {self.ingredient} содержится" f"{self.amount}."
+            f"В рецепте {self.recipe},"
+            f" {self.ingredient} содержится" f"{self.amount}."
         )
 
 
@@ -149,7 +160,9 @@ class ShoppingCartList(models.Model):
         verbose_name = "Корзина покупок"
         verbose_name_plural = "Корзина покупок"
         constraints = [
-            UniqueConstraint(fields=["user", "recipe"], name="unique_shopping_cart")
+            UniqueConstraint(
+                fields=["user", "recipe"], name="unique_shopping_cart"
+            )
         ]
 
     def __str__(self):

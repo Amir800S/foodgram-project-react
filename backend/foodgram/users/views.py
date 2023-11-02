@@ -13,7 +13,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Subscribe, User
-from .pagination import CustomPageNumberPagination, PageLimitPagination
+from .pagination import CustomPageNumberPagination
 
 
 class CustomUserViewSet(UserViewSet):
@@ -58,11 +58,12 @@ class CustomUserViewSet(UserViewSet):
         if request.method == "POST":
             if user == author:
                 return Response(
-                    f"На себя подписаться нельзя", status=HTTPStatus.BAD_REQUEST
+                    f'На себя подписаться нельзя',
+                    status=HTTPStatus.BAD_REQUEST
                 )
             if obj.exists():
                 return Response(
-                    f"Вы уже подписаны на {author.username}",
+                    f'Вы уже подписаны на {author.username}',
                     status=HTTPStatus.BAD_REQUEST,
                 )
             serializer = SubscribeSerializer(
@@ -72,13 +73,15 @@ class CustomUserViewSet(UserViewSet):
             return Response(serializer.data, status=HTTPStatus.CREATED)
         if user == author:
             return Response(
-                f"Вы не можете отписаться от самого себя", status=HTTPStatus.BAD_REQUEST
+                f'Вы не можете отписаться от самого себя',
+                status=HTTPStatus.BAD_REQUEST
             )
         if obj.exists():
             obj.delete()
             return Response(status=HTTPStatus.NO_CONTENT)
         return Response(
-            f"Вы уже отписались от {author.username}", status=HTTPStatus.BAD_REQUEST
+            f'Вы уже отписались от {author.username}',
+            status=HTTPStatus.BAD_REQUEST
         )
 
     @action(detail=False, methods=("get",))
