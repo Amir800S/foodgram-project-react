@@ -58,12 +58,12 @@ class CustomUserViewSet(UserViewSet):
         if request.method == "POST":
             if user == author:
                 return Response(
-                    f'На себя подписаться нельзя',
+               f'На себя подписаться нельзя',
                     status=HTTPStatus.BAD_REQUEST
                 )
             if obj.exists():
                 return Response(
-                    f'Вы уже подписаны на {author.username}',
+               f'Вы уже подписаны на {author.username}',
                     status=HTTPStatus.BAD_REQUEST,
                 )
             serializer = SubscribeSerializer(

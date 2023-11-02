@@ -133,7 +133,7 @@ class RecipeViewSet(ModelViewSet):
                     user=request.user, recipe=recipe
                 )
                 return Response(
-                    f"Рецепт добавлен в список покупок!",
+                    f'Рецепт добавлен в список покупок!',
                     status=HTTPStatus.CREATED
                 )
             return Response(
