@@ -3,7 +3,6 @@ from http import HTTPStatus
 from api.serializers import (
     SubscribeSerializer,
     SubscriptionSerializer,
-    UserCreateSerializer,
     UserCreationSerializer,
 )
 from djoser.views import UserViewSet
@@ -60,10 +59,8 @@ class CustomUserViewSet(UserViewSet):
                 return Response('На себя подписаться нельзя',
                                 status=HTTPStatus.BAD_REQUEST)
             if obj.exists():
-                return Response(
-               f'Вы уже подписаны на {author.username}',
-                    status=HTTPStatus.BAD_REQUEST,
-                )
+                return Response(f'Вы уже подписаны на {author.username}',
+                                status=HTTPStatus.BAD_REQUEST)
             serializer = SubscribeSerializer(
                 Subscribe.objects.create(user=user, author=author),
                 context={"request": request},

@@ -29,9 +29,7 @@ from .serializers import (
     FavouriteSerializer,
     IngredientSerializer,
     RecipeCreateSerializer,
-    RecipeIngredientSerializer,
     RecipeReadSerializer,
-    RecipeSerializer,
     ShoppingCartSerializer,
     TagSerializer,
 )
