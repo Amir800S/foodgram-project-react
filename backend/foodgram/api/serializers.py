@@ -133,7 +133,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         return Subscribe.objects.filter(author=obj.author, user=user).exists()
 
     def get_recipes(self, obj):
-        limit = self.context.get("request").GET.get("recipes_limit")
+        limit = self.context.get('request').GET.get('recipes_limit')
         recipe_obj = obj.author.recipes.all()
         if limit:
             recipe_obj = recipe_obj[: int(limit)]

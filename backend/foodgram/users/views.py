@@ -57,10 +57,8 @@ class CustomUserViewSet(UserViewSet):
 
         if request.method == "POST":
             if user == author:
-                return Response(
-               f'На себя подписаться нельзя',
-                    status=HTTPStatus.BAD_REQUEST
-                )
+                return Response('На себя подписаться нельзя',
+                                status=HTTPStatus.BAD_REQUEST)
             if obj.exists():
                 return Response(
                f'Вы уже подписаны на {author.username}',
@@ -72,10 +70,8 @@ class CustomUserViewSet(UserViewSet):
             )
             return Response(serializer.data, status=HTTPStatus.CREATED)
         if user == author:
-            return Response(
-                f'Вы не можете отписаться от самого себя',
-                status=HTTPStatus.BAD_REQUEST
-            )
+            return Response('Вы не можете отписаться от самого себя',
+                            status=HTTPStatus.BAD_REQUEST)
         if obj.exists():
             obj.delete()
             return Response(status=HTTPStatus.NO_CONTENT)
