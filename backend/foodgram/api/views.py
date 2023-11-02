@@ -110,7 +110,8 @@ class RecipeViewSet(ModelViewSet):
                 )
             Favourite.objects.filter(user=user, recipe=recipe).delete()
             return Response(
-                "Рецепт успешно удалён из избранного.", status=HTTPStatus.NO_CONTENT
+                "Рецепт успешно удалён из избранного.",
+                status=HTTPStatus.NO_CONTENT
             )
 
     @action(
@@ -128,9 +129,12 @@ class RecipeViewSet(ModelViewSet):
             if not ShoppingCartList.objects.filter(
                 user=request.user, recipe=recipe
             ).exists():
-                ShoppingCartList.objects.create(user=request.user, recipe=recipe)
+                ShoppingCartList.objects.create(
+                    user=request.user, recipe=recipe
+                )
                 return Response(
-                    f"Рецепт добавлен в список покупок!", status=HTTPStatus.CREATED
+                    f"Рецепт добавлен в список покупок!",
+                    status=HTTPStatus.CREATED
                 )
             return Response(
                 {"errors": "Рецепт уже в списке покупок."},
@@ -145,14 +149,22 @@ class RecipeViewSet(ModelViewSet):
                 status=HTTPStatus.NO_CONTENT,
             )
 
-    @action(detail=False, methods=("get",), permission_classes=(IsAuthenticated,))
+    @action(
+        detail=False,
+        methods=("get",),
+        permission_classes=(IsAuthenticated,)
+    )
     def download_shopping_cart(self, request, **kwargs):
         ingredients = (
-            RecipeIngredients.objects.filter(recipe__shopping_recipe__user=request.user)
+            RecipeIngredients.objects.filter(
+                recipe__shopping_recipe__user=request.user
+            )
             .values("ingredient")
             .annotate(total_amount=Sum("amount"))
             .values_list(
-                "ingredient__name", "total_amount", "ingredient__measurement_unit"
+                "ingredient__name",
+                "total_amount",
+                "ingredient__measurement_unit"
             )
         )
         file_list = []
@@ -162,7 +174,9 @@ class RecipeViewSet(ModelViewSet):
         ]
         buffer = BytesIO()
         p = canvas.Canvas(buffer, pagesize=letter)
-        pdfmetrics.registerFont(TTFont("Arial", "./recipes/fonts/arial.ttf"))
+        pdfmetrics.registerFont(
+            TTFont("Arial", "./recipes/fonts/arial.ttf")
+        )
         p.setFont("Arial", 12)
         p.drawString(100, 750, "Список покупок:")
         y = 730
@@ -173,5 +187,6 @@ class RecipeViewSet(ModelViewSet):
         p.save()
         buffer.seek(0)
         response = HttpResponse(buffer, content_type="application/pdf")
-        response["Content-Disposition"] = 'attachment; filename="purchases.pdf"'
+        response[
+            "Content-Disposition"] = 'attachment; filename="purchases.pdf"'
         return response

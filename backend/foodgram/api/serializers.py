@@ -1,5 +1,3 @@
-from django.contrib.auth import authenticate
-from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_base64.fields import Base64ImageField
 from recipes.models import (
@@ -186,7 +184,9 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
     id = serializers.ReadOnlyField(source="ingredient.id")
     name = serializers.ReadOnlyField(source="ingredient.name")
-    measurement_unit = serializers.ReadOnlyField(source="ingredient.measurement_unit")
+    measurement_unit = serializers.ReadOnlyField(
+        source="ingredient.measurement_unit"
+    )
 
     class Meta:
         model = RecipeIngredients
@@ -198,7 +198,9 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     author = UserCreateSerializer(read_only=True)
     tags = TagSerializer(many=True)
-    ingredients = RecipeIngredientSerializer(many=True, source="recipe_ingredients")
+    ingredients = RecipeIngredientSerializer(
+        many=True, source="recipe_ingredients"
+    )
     image = Base64ImageField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     is_favorited = serializers.SerializerMethodField()
@@ -263,7 +265,9 @@ class RecipeSerializer(serializers.ModelSerializer):
 class RecipeCreateSerializer(serializers.ModelSerializer):
     """Создание, изменение и удаление рецепта."""
 
-    tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all())
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Tag.objects.all()
+    )
     author = UserCreateSerializer(read_only=True)
     id = serializers.ReadOnlyField()
     ingredients = RecipeIngredientCreateSerializer(many=True)
@@ -332,7 +336,9 @@ class ShoppingCartSerializer(RecipeSerializer):
     def validate(self, data):
         recipe = self.instance
         user = self.context.get("request").user
-        if ShoppingCartList.objects.filter(recipe=recipe, user=user).exists():
+        if ShoppingCartList.objects.filter(
+                recipe=recipe, user=user
+        ).exists():
             raise serializers.ValidationError(
                 detail="Рецепт уже добавлен в корзину",
                 code=status.HTTP_400_BAD_REQUEST,
