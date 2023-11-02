@@ -22,4 +22,6 @@ with open(csv_file_path, 'r', encoding='utf-8') as csv_file:
         if created:
             print(f'Ингредиент {ingredient.name} добавлен в базу данных.')
         else:
-            print(f'Ингредиент {ingredient.name} уже существует в базе данных.')
+            print(
+                f'Ингредиент {ingredient.name} уже существует в базе данных.'
+            )

@@ -1,6 +1,4 @@
 import os
-from datetime import timedelta
-from pathlib import Path
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -141,4 +139,4 @@ TAG_NAME = 80
 TAG_SLUG = 100
 TAG_COLOR = 7
 
-FILE_NAME = 'shopping_cart.txt' # Имя файла-списка покупок
+FILE_NAME = 'shopping_cart.txt'  # Имя файла-списка покупок

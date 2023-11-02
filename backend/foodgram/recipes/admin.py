@@ -29,6 +29,7 @@ class UserAdmin(BaseUserAdmin):
     )
     empty_value_display = '-пусто-'
 
+
 class SubscribeAdmin(admin.ModelAdmin):
     """Админка подписок."""
     list_display = (
@@ -43,6 +44,7 @@ class SubscribeAdmin(admin.ModelAdmin):
     )
     empty_value_display = '-пусто-'
 
+
 class IngredientAdmin(admin.ModelAdmin):
     """Админка ингредиентов."""
     list_display = (
@@ -51,6 +53,7 @@ class IngredientAdmin(admin.ModelAdmin):
     )
     list_filter = ('name', )
     search_fields = ('name', )
+
 
 
 class TagAdmin(admin.ModelAdmin):
@@ -69,6 +72,7 @@ class TagAdmin(admin.ModelAdmin):
     )
     search_fields = ('name', 'slug')
     empty_value_display = '-пусто-'
+
 
 
 class RecipeAdmin(admin.ModelAdmin):
@@ -93,6 +97,7 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ('name', 'author')
     empty_value_display = '-пусто-'
 
+
 class RecipeIngredientsAdmin(admin.ModelAdmin):
     """Админка тэгов."""
     list_display = (
@@ -103,6 +108,7 @@ class RecipeIngredientsAdmin(admin.ModelAdmin):
     search_fields = ('recipe', )
     empty_value_display = '-пусто-'
 
+
 class ShoppingCartListAdmin(admin.ModelAdmin):
     """Админка тэгов."""
     list_display = (
@@ -111,6 +117,7 @@ class ShoppingCartListAdmin(admin.ModelAdmin):
     )
     search_fields = ('recipe', )
     empty_value_display = '-пусто-'
+
 
 class FavouriteAdmin(admin.ModelAdmin):
     """Админка тэгов."""
