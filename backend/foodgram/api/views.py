@@ -132,10 +132,8 @@ class RecipeViewSet(ModelViewSet):
                 ShoppingCartList.objects.create(
                     user=request.user, recipe=recipe
                 )
-                return Response(
-                    f'Рецепт добавлен в список покупок!',
-                    status=HTTPStatus.CREATED
-                )
+                return Response('Рецепт добавлен в список покупок!',
+                                status=HTTPStatus.CREATED)
             return Response(
                 {"errors": "Рецепт уже в списке покупок."},
                 status=HTTPStatus.BAD_REQUEST,
