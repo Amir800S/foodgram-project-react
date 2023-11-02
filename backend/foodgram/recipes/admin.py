@@ -55,7 +55,6 @@ class IngredientAdmin(admin.ModelAdmin):
     search_fields = ('name', )
 
 
-
 class TagAdmin(admin.ModelAdmin):
     """Админка тэгов."""
     list_display = (
@@ -72,7 +71,6 @@ class TagAdmin(admin.ModelAdmin):
     )
     search_fields = ('name', 'slug')
     empty_value_display = '-пусто-'
-
 
 
 class RecipeAdmin(admin.ModelAdmin):

@@ -155,5 +155,6 @@ class RecipeViewSet(ModelViewSet):
         p.save()
         buffer.seek(0)
         response = HttpResponse(buffer, content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="purchases.pdf"'
+        response[
+            'Content-Disposition'] = 'attachment; filename="purchases.pdf"'
         return response
