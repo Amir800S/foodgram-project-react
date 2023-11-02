@@ -4,10 +4,10 @@ import os
 from django.conf import settings
 from django.core.wsgi import get_wsgi_application
 
+from recipes.models import Ingredient
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "foodgram.settings")
 application = get_wsgi_application()
-
-from recipes.models import Ingredient
 
 csv_file_path = os.path.join(settings.BASE_DIR, "data", "ingredients.csv")
 
