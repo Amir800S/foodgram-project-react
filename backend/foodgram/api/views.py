@@ -2,7 +2,7 @@ from http import HTTPStatus
 from io import BytesIO
 
 from django.db.models import Sum
-from django.http import FileResponse, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favourite, Ingredient, Recipe, RecipeIngredients,
@@ -12,12 +12,9 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework.decorators import action
-from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-
-from foodgram.settings import FILE_NAME
 
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import PageLimitPagination
@@ -112,7 +109,9 @@ class RecipeViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             if not ShoppingCartList.objects.filter(user=request.user,
                                                 recipe=recipe).exists():
-                ShoppingCartList.objects.create(user=request.user, recipe=recipe)
+                ShoppingCartList.objects.create(
+                    user=request.user, recipe=recipe
+                )
                 return Response(f'Рецепт добавлен в список покупок!',
                                 status=HTTPStatus.CREATED
                                 )
@@ -143,7 +142,9 @@ class RecipeViewSet(ModelViewSet):
             '{} - {} {}.'.format(*ingredient)) for ingredient in ingredients]
         buffer = BytesIO()
         p = canvas.Canvas(buffer, pagesize=letter)
-        pdfmetrics.registerFont(TTFont('Arial', './recipes/fonts/arial.ttf'))
+        pdfmetrics.registerFont(
+            TTFont('Arial', './recipes/fonts/arial.ttf')
+        )
         p.setFont('Arial', 12)
         p.drawString(100, 750, "Список покупок:")
         y = 730
