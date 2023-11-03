@@ -1,10 +1,5 @@
 from http import HTTPStatus
 
-from api.serializers import (
-    SubscribeSerializer,
-    SubscriptionSerializer,
-    UserCreationSerializer,
-)
 from djoser.views import UserViewSet
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -13,13 +8,18 @@ from rest_framework.response import Response
 
 from .models import Subscribe, User
 from .pagination import CustomPageNumberPagination
-
+from api.serializers import (
+    SubscribeSerializer,
+    SubscriptionSerializer,
+    UserCreateSerializer,
+    UserCreationSerializer
+)
 
 class CustomUserViewSet(UserViewSet):
     """Вьюсет для модели User и Subscribe."""
 
     queryset = User.objects.all()
-    serializer_class = UserCreationSerializer
+    serializer_class = UserCreateSerializer
     pagination_class = CustomPageNumberPagination
     permission_classes = (AllowAny,)
 
