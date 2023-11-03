@@ -34,6 +34,7 @@ from recipes.models import (
     Tag,
 )
 
+
 class IngredientViewSet(ModelViewSet):
     """Вьюсет ингредиентов."""
 
