@@ -12,8 +12,8 @@ from api.serializers import (
     SubscribeSerializer,
     SubscriptionSerializer,
     UserCreateSerializer,
-    UserCreationSerializer
 )
+
 
 class CustomUserViewSet(UserViewSet):
     """Вьюсет для модели User и Subscribe."""
