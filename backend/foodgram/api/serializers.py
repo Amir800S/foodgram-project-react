@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_base64.fields import Base64ImageField
 from recipes.models import (
@@ -72,35 +73,27 @@ class SubscribeShortRecipeSerializer(serializers.ModelSerializer):
 class SubscribeSerializer(serializers.ModelSerializer):
     """Сериалайзер для вывода подписок пользователя."""
 
-    is_subscribed = SerializerMethodField()
-    recipes_count = SerializerMethodField()
-    recipes = SerializerMethodField()
-    email = serializers.ReadOnlyField()
-
     class Meta:
-        model = User
+        model = Subscribe
         fields = (
-            "email",
-            "id",
-            "username",
-            "first_name",
-            "last_name",
-            "is_subscribed",
-            "recipes",
-            "recipes_count",
+            'author',
+            'id',
         )
 
-    def get_recipes(self, obj):
-        return obj.recipes.all()
+    def validate(self, data):
+        user = data.get('user')
+        author = data.get('author')
 
-    def get_recipes_count(self, obj):
-        return obj.recipes.all().count()
-
-    def get_is_subscribed(self, obj):
-        request = self.context.get("request")
-        if not request:
-            return False
-        return Subscribe.objects.filter(user=request.user, author=obj).exists()
+        if self.context.get('request').method == 'POST':
+            if Subscribe.objects.filter(user=user, author=author).exists():
+                raise ValidationError(
+                    "Вы уже подписаны на этого автора")
+        if user == author:
+            raise ValidationError(
+                'Подписаться на самого себя невозможно',
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        return data
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):

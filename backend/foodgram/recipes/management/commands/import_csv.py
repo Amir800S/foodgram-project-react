@@ -1,26 +1,33 @@
 import csv
 import os
 
+from django.core.management.base import BaseCommand
 from django.conf import settings
-from django.core.wsgi import get_wsgi_application
 
 from recipes.models import Ingredient
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "foodgram.settings")
-application = get_wsgi_application()
+class Command(BaseCommand):
+    help = 'Import ingredients from CSV file'
 
-csv_file_path = os.path.join(settings.BASE_DIR, "data", "ingredients.csv")
+    def handle(self, *args, **options):
+        csv_file_path = os.path.join(settings.BASE_DIR, "data", "ingredients.csv")
 
-with open(csv_file_path, "r", encoding="utf-8") as csv_file:
-    csv_reader = csv.reader(csv_file)
-    for row in csv_reader:
-        name, measurement_unit = row
-        ingredient, created = Ingredient.objects.get_or_create(
-            name=name, measurement_unit=measurement_unit
-        )
-        if created:
-            print(f"Ингредиент {ingredient.name} добавлен в базу данных.")
-        else:
-            print(
-                f"Ингредиент {ingredient.name} уже существует в базе данных."
-            )
+        with open(csv_file_path, "r", encoding="utf-8") as csv_file:
+            csv_reader = csv.reader(csv_file)
+            for row in csv_reader:
+                name, measurement_unit = row
+                ingredient, created = Ingredient.objects.get_or_create(
+                    name=name, measurement_unit=measurement_unit
+                )
+                if created:
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f'Ингредиент {ingredient.name} добавлен в базу.'
+                        )
+                    )
+                else:
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f'Ингредиент {ingredient.name} уже существует в базе.'
+                        )
+                    )
