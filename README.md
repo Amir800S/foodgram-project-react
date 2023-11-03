@@ -65,7 +65,7 @@ docker-compose exec <имя_контейнера_бэкэнда> python manage.p
 ```
 Добавить ингредиенты из csv:
 ```python
-docker-compose exec <имя_контейнера_бэкэнда> python3 manage.py import_csv ingredients.csv
+docker-compose exec <имя_контейнера_бэкэнда> python3 manage.py import_csv
 ```
 Теги добавляем вручную в админ-зоне, не надо лениться!
 ### Проект готов к работе!
