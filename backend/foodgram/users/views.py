@@ -11,7 +11,7 @@ from .pagination import CustomPageNumberPagination
 from api.serializers import (
     SubscribeSerializer,
     SubscriptionSerializer,
-    UserCreateSerializer,
+    UserSerializer,
 )
 
 
@@ -19,7 +19,7 @@ class CustomUserViewSet(UserViewSet):
     """Вьюсет для модели User и Subscribe."""
 
     queryset = User.objects.all()
-    serializer_class = UserCreateSerializer
+    serializer_class = UserSerializer
     pagination_class = CustomPageNumberPagination
     permission_classes = (AllowAny,)
 
@@ -32,7 +32,7 @@ class CustomUserViewSet(UserViewSet):
     def subscriptions(self, request):
         """Список авторов, на которых подписан пользователь."""
         user = request.user
-        queryset = user.subscriber.all()
+        queryset = user.follower.all()
         paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(queryset, request, view=self)
         serializer = SubscriptionSerializer(

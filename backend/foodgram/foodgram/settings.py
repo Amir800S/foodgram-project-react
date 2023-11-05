@@ -114,7 +114,7 @@ DJOSER = {
     "LOGIN_FIELD": "email",
     "HIDE_USERS": False,
     "PERMISSIONS": {
-        "user": ["api.permissions.IsAdminOrReadOnly"],
+        "user": ["rest_framework.permissions.IsAuthenticated"],
         "user_list": ["rest_framework.permissions.AllowAny"],
         "user_delete": ["rest_framework.permissions.IsAdminUser"],
     },
@@ -131,6 +131,7 @@ FIRST_USERNAME_MAX_LENGHT = 150
 LAST_USERNAME_MAX_LENGHT = 150
 PASSWORD_MAX_LENGHT = 150
 INGREDIENT_MIN_AMOUNT = 1
+INGREDIENT_MAX_AMOUNT = 1000
 RECIPE_NAME = 200
 RECIPE_TEXT = 500
 INGREDIENT_NAME = 150

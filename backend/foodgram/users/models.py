@@ -59,14 +59,14 @@ class Subscribe(models.Model):
 
     user = models.ForeignKey(
         User,
-        related_name="subscriber",
+        related_name="follower",
         on_delete=models.CASCADE,
         null=True,
         help_text="Подписчик автора",
     )
     author = models.ForeignKey(
         User,
-        related_name="subscribing",
+        related_name="author",
         on_delete=models.CASCADE,
         null=True,
         help_text="Автор",
