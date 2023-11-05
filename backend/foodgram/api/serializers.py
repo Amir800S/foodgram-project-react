@@ -3,8 +3,9 @@ from http import HTTPStatus
 from django.core.exceptions import ValidationError
 from djoser.serializers import UserCreateSerializer
 from drf_base64.fields import Base64ImageField
-from rest_framework import serializers, status
+from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
+from django.conf import settings
 
 from users.models import Subscribe, User
 from recipes.models import (
@@ -52,12 +53,15 @@ class UserSerializer(serializers.ModelSerializer):
         return (request.user.is_authenticated
                 and request.user.follower.filter(author=obj).exists())
 
+
+
 class RecipeSerializer(serializers.ModelSerializer):
     """Список рецептов без ингридиентов."""
-
+    id = serializers.ReadOnlyField(source="author.id")
     image = Base64ImageField(read_only=True)
     name = serializers.ReadOnlyField()
     cooking_time = serializers.ReadOnlyField()
+    # БЕЗ ЭТИХ ПОЛЕЙ НЕ РАБОТАЕТ
 
     class Meta:
         model = Recipe
@@ -67,18 +71,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             "image",
             "cooking_time"
         )
-
-
-class RecipeSerializer(serializers.ModelSerializer):
-    """Список рецептов без ингридиентов."""
-    id = serializers.ReadOnlyField(source="author.id")
-    image = Base64ImageField(read_only=True)
-    name = serializers.ReadOnlyField()
-    cooking_time = serializers.ReadOnlyField()
-
-    class Meta:
-        model = Recipe
-        fields = ("id", "name", "image", "cooking_time")
 
 class SubscribeSerializer(serializers.ModelSerializer):
     """Сериалайзер для вывода подписок пользователя."""
@@ -116,6 +108,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.ReadOnlyField(source="author.recipes.count")
     is_subscribed = serializers.SerializerMethodField()
+    # БЕЗ ЭТИХ ПОЛЕЙ НЕ РАБОТАЕТ
 
     class Meta:
         model = Subscribe
@@ -171,7 +164,6 @@ class FavouriteSerializer(serializers.ModelSerializer):
         return data
 
     def to_representation(self, instance):
-        request = self.context.get("request")
         return RecipeSerializer(
             instance.recipe,
             context=self.context,
@@ -205,7 +197,12 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecipeIngredients
-        fields = ("id", "name", "measurement_unit", "amount")
+        fields = (
+            "id",
+            "name",
+            "measurement_unit",
+            "amount"
+        )
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -236,26 +233,26 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         )
 
     def get_is_in_shopping_cart(self, obj):
-        return (
-            self.context.get("request").user.is_authenticated
-            and ShoppingCartList.objects.filter(
-                user=self.context["request"].user, recipe=obj
-            ).exists()
-        )
+        request = self.context.get('request')
+        return (request.user.is_authenticated
+                and obj.shopping_recipe.filter(user=request.user).exists())
 
     def get_is_favorited(self, obj):
-        return (
-            self.context.get("request").user.is_authenticated
-            and Favourite.objects.filter(
-                user=self.context["request"].user, recipe=obj
-            ).exists()
-        )
-
+        request = self.context.get('request')
+        return (request.user.is_authenticated
+                and obj.favourites_recipe.filter(user=request.user).exists())
 
 class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
     """Ингредиент и количество для создания рецепта."""
 
     id = serializers.IntegerField()
+    # id = serializers.PrimaryKeyRelatedField(
+    #     queryset=Ingredient.objects.all()
+    # )
+    # amount = serializers.IntegerField(
+    #     min_value=settings.INGREDIENT_MIN_AMOUNT,
+    #     max_value=settings.INGREDIENT_MAX_AMOUNT
+    # )
 
     class Meta:
         model = RecipeIngredients
