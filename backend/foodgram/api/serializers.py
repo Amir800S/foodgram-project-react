@@ -18,6 +18,7 @@ from recipes.models import (
     Tag,
 )
 
+
 class UserCreationSerializer(UserCreateSerializer):
     """Создание пользователей."""
 
@@ -55,7 +56,6 @@ class UserSerializer(serializers.ModelSerializer):
                 and request.user.follower.filter(author=obj).exists())
 
 
-
 class RecipeSerializer(serializers.ModelSerializer):
     """Список рецептов без ингридиентов."""
 
@@ -69,6 +69,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             "image",
             "cooking_time"
         )
+
 
 class SubscribeSerializer(serializers.ModelSerializer):
     """Сериалайзер для вывода подписок пользователя."""
@@ -144,7 +145,6 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             recipe_obj = recipe_obj[:int(limit)]
         return RecipeSerializer(
             recipe_obj, many=True, context={'request': request}).data
-
 
 
 class FavouriteSerializer(serializers.ModelSerializer):
@@ -244,6 +244,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         return (request.user.is_authenticated
                 and obj.favourites_recipe.filter(user=request.user).exists())
 
+
 class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
     """Ингредиент и количество для создания рецепта."""
 
@@ -259,7 +260,6 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
             "id",
             "amount",
         )
-
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
