@@ -46,10 +46,7 @@ class Tag(models.Model):
         null=True,
         max_length=constants.TAG_COLOR,
         validators = [
-            RegexValidator(
-                '^#([a-fA-F0-9]{6})',
-                message='Введите HEX!'
-            )
+            RegexValidator('^#([a-fA-F0-9]{6})',message='Введите HEX!')
         ]
     )
     slug = models.SlugField("Слаг", unique=True, max_length=constants.TAG_SLUG)

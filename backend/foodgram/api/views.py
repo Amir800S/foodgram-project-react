@@ -113,10 +113,11 @@ class RecipeViewSet(ModelViewSet):
 
     @favorite.mapping.delete
     def delete_favorite(self, request, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
         get_object_or_404(
             Favourite,
             user=request.user,
-            recipe=get_object_or_404(Recipe, pk=pk)
+            recipe=recipe
         ).delete()
         return Response(status=HTTPStatus.NO_CONTENT)
 
