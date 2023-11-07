@@ -114,11 +114,12 @@ class RecipeViewSet(ModelViewSet):
     @favorite.mapping.delete
     def delete_favorite(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
-        get_object_or_404(
+        favourite = get_object_or_404(
             Favourite,
             user=request.user,
             recipe=recipe
-        ).delete()
+        )
+        favourite.delete()
         return Response(status=HTTPStatus.NO_CONTENT)
 
     @action(
@@ -137,11 +138,13 @@ class RecipeViewSet(ModelViewSet):
 
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk):
-        get_object_or_404(
+        recipe = get_object_or_404(Recipe, pk=pk)
+        shopping_cart = get_object_or_404(
             ShoppingCartList,
             user=request.user.id,
-            recipe=get_object_or_404(Recipe, pk=pk)
-        ).delete()
+            recipe=recipe
+        )
+        shopping_cart.delete()
         return Response(status=HTTPStatus.NO_CONTENT)
 
     @action(
