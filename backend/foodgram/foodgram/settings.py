@@ -6,7 +6,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", default="default")
 
 DEBUG = os.getenv("DEBUG_STATUS", default=True)
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', ' ').split(' ')
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -54,16 +54,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "foodgram.wsgi.application"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DB", "django"),
-        "USER": os.getenv("POSTGRES_USER", "django_user"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": os.getenv("DB_HOST", "foodgram-db-1"),
-        "PORT": os.getenv("DB_PORT", 5432),
+DEVELOPMENT_STATUS = os.getenv(
+    'DEVELOPMENT_STATUS', default=False) == 'True'
+
+if DEVELOPMENT_STATUS:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("POSTGRES_DB", "django"),
+            "USER": os.getenv("POSTGRES_USER", "django_user"),
+            "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+            "HOST": os.getenv("DB_HOST", "foodgram-db-1"),
+            "PORT": os.getenv("DB_PORT", 5432),
+        }
+    }
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -116,28 +127,11 @@ DJOSER = {
     "PERMISSIONS": {
         "user": ["rest_framework.permissions.IsAuthenticated"],
         "user_list": ["rest_framework.permissions.AllowAny"],
-        "user_delete": ["rest_framework.permissions.IsAdminUser"],
     },
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "users.User"
-
-# ======= Константы для моделей =======
-EMAIL_MAX_LENGHT = 254
-USERNAME_MAX_LENGHT = 150
-FIRST_USERNAME_MAX_LENGHT = 150
-LAST_USERNAME_MAX_LENGHT = 150
-PASSWORD_MAX_LENGHT = 150
-INGREDIENT_MIN_AMOUNT = 1
-INGREDIENT_MAX_AMOUNT = 1000
-RECIPE_NAME = 200
-RECIPE_TEXT = 500
-INGREDIENT_NAME = 150
-INGREDIENT_UNIT = 20
-TAG_NAME = 80
-TAG_SLUG = 100
-TAG_COLOR = 7
 
 FILE_NAME = "shopping_cart.txt"  # Имя файла-списка покупок

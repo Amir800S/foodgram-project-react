@@ -1,7 +1,8 @@
-from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import UniqueConstraint
+
+from recipes import constants
 from users.models import User
 
 
@@ -9,10 +10,10 @@ class Ingredient(models.Model):
     """Модель ингредиента."""
 
     name = models.CharField(
-        "Название ингредиента", max_length=settings.INGREDIENT_NAME, null=False
+        "Название ингредиента", max_length=constants.INGREDIENT_NAME, null=False
     )
     measurement_unit = models.CharField(
-        "Единица для измерения", max_length=settings.INGREDIENT_UNIT
+        "Единица для измерения", max_length=constants.INGREDIENT_UNIT
     )
 
     class Meta:
@@ -28,12 +29,12 @@ class Tag(models.Model):
     """Модель тэга."""
 
     name = models.CharField(
-        "Название тэга", unique=True, max_length=settings.TAG_NAME
+        "Название тэга", unique=True, max_length=constants.TAG_NAME
     )
     color = models.CharField(
-        "Цветовой HEX-код", null=True, max_length=settings.TAG_COLOR
+        "Цветовой HEX-код", null=True, max_length=constants.TAG_COLOR
     )
-    slug = models.SlugField("Слаг", unique=True, max_length=settings.TAG_SLUG)
+    slug = models.SlugField("Слаг", unique=True, max_length=constants.TAG_SLUG)
 
     class Meta:
         verbose_name = "Тэг"
@@ -64,13 +65,12 @@ class Recipe(models.Model):
     )
     text = models.TextField(
         "О рецепте",
-        max_length=settings.RECIPE_TEXT,
     )
     image = models.ImageField(
         "Изображение рецепта", upload_to="recipes/"
     )
     name = models.CharField(
-        "Название рецепта", max_length=settings.RECIPE_NAME
+        "Название рецепта", max_length=constants.RECIPE_NAME
     )
     tags = models.ManyToManyField(
         Tag, related_name="recipes", verbose_name="Тэги"
@@ -129,7 +129,7 @@ class RecipeIngredients(models.Model):
     )
     amount = models.PositiveSmallIntegerField(
         "Количество ингредиента",
-        validators=[MinValueValidator(settings.INGREDIENT_MIN_AMOUNT)],
+        validators=[MinValueValidator(constants.INGREDIENT_MIN_AMOUNT)],
     )
 
     class Meta:
