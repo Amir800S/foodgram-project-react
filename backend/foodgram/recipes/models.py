@@ -1,4 +1,6 @@
-from django.core.validators import MinValueValidator, RegexValidator, MaxValueValidator
+from django.core.validators import (
+    MinValueValidator, RegexValidator, MaxValueValidator
+)
 from django.db import models
 from django.db.models import UniqueConstraint
 
@@ -10,7 +12,9 @@ class Ingredient(models.Model):
     """Модель ингредиента."""
 
     name = models.CharField(
-        "Название ингредиента", max_length=constants.INGREDIENT_NAME, null=False
+        "Название ингредиента",
+        max_length=constants.INGREDIENT_NAME,
+        null=False
     )
     measurement_unit = models.CharField(
         "Единица для измерения", max_length=constants.INGREDIENT_UNIT
@@ -21,7 +25,7 @@ class Ingredient(models.Model):
         verbose_name_plural = "Ингредиенты"
         ordering = ("name",)
         constraints = [
-            models.UniqueConstraint(
+            UniqueConstraint(
                 fields=['name', 'measurement_unit'],
                 name='unique_ingregient_name_measurement_unit'
             )
@@ -110,7 +114,6 @@ class Recipe(models.Model):
         return self.name
 
 
-
 class RecipeIngredients(models.Model):
     """Модель ингредиентов в рецептах"""
 
@@ -164,6 +167,8 @@ class AbstractFavoriteShopping(models.Model):
 
     def __str__(self):
         return "{} В Избранном у {}".format(self.recipe, self.user)
+
+
 class Favourite(AbstractFavoriteShopping):
     """Наследник абстрактного класса для избранного."""
     class Meta(AbstractFavoriteShopping.Meta):

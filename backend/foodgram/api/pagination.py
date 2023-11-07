@@ -5,6 +5,7 @@ from rest_framework.response import Response
 class PageLimitPagination(PageNumberPagination):
     page_size_query_param = "limit"
 
+
 class CustomPageNumberPagination(PageNumberPagination):
     page_size = 1
     page_size_query_param = "page_size"
