@@ -11,8 +11,6 @@ class User(AbstractUser):
 
     first_name = models.CharField(
         max_length=constants.FIRST_USERNAME_MAX_LENGHT,
-        blank=True,
-        null=False,
         verbose_name="Имя",
     )
     last_name = models.CharField(
@@ -42,8 +40,8 @@ class User(AbstractUser):
         blank=False,
         null=False,
     )
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'username']
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ('first_name', 'last_name', 'username')
 
     class Meta:
         ordering = ("username",)
@@ -73,12 +71,17 @@ class Subscribe(models.Model):
     )
 
     class Meta:
-        verbose_name = "Подписки"
-        UniqueConstraint(fields=["author", "user"], name="re-subscription")
-        CheckConstraint(
-            name="prevent_self_subscription",
-            check=~models.Q(user=models.F("author")),
-        )
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
+        constraints = [
+            UniqueConstraint(
+                fields=["author", "user"],
+                name="re-subscription"
+            ),
+            CheckConstraint(
+                name="prevent_self_subscription",
+                check=~models.Q(user=models.F("author")),
+            )]
 
     def __str__(self):
         return "{} подписан на {}".format(self.user, self.author)

@@ -1,7 +1,6 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.utils.safestring import mark_safe
 
-from users.models import Subscribe, User
 from .models import (
     Favourite,
     Ingredient,
@@ -11,36 +10,7 @@ from .models import (
     Tag,
 )
 
-
-class UserAdmin(BaseUserAdmin):
-    """Админка юзера."""
-
-    list_display = (
-        "username",
-        "email",
-        "password",
-        "first_name",
-        "last_name",
-    )
-    list_display_links = (
-        "username",
-        "email",
-    )
-    list_editable = ("password",)
-    list_filter = ("username", "email")
-    search_fields = ("username",)
-    empty_value_display = "-пусто-"
-
-
-class SubscribeAdmin(admin.ModelAdmin):
-    """Админка подписок."""
-
-    list_display = ("user", "author")
-    list_editable = ("author",)
-    list_display_links = ("user",)
-    empty_value_display = "-пусто-"
-
-
+@admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     """Админка ингредиентов."""
 
@@ -48,7 +18,7 @@ class IngredientAdmin(admin.ModelAdmin):
     list_filter = ("name",)
     search_fields = ("name",)
 
-
+@admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     """Админка тэгов."""
 
@@ -58,7 +28,7 @@ class TagAdmin(admin.ModelAdmin):
     search_fields = ("name", "slug")
     empty_value_display = "-пусто-"
 
-
+@admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     """Админка рецетов."""
 
@@ -66,8 +36,10 @@ class RecipeAdmin(admin.ModelAdmin):
         "name",
         "cooking_time",
         "text",
-        "image",
         "author",
+        "ingredients_list",
+        "favorites_count",
+        "image"
     )
     list_editable = (
         "cooking_time",
@@ -80,7 +52,17 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ("name", "author")
     empty_value_display = "-пусто-"
 
+    def ingredients_list(self, obj):
+        return ', '.join((str(ingredient) for ingredient
+                          in obj.ingredients.all()))
 
+    def favorites_count(self, obj):
+        return obj.favourites_recipe.count()
+
+    def image(self, obj):
+        return mark_safe(f'<img src={obj.image.url} width="80" height="60">')
+
+@admin.register(RecipeIngredients)
 class RecipeIngredientsAdmin(admin.ModelAdmin):
     """Админка тэгов."""
 
@@ -88,7 +70,7 @@ class RecipeIngredientsAdmin(admin.ModelAdmin):
     search_fields = ("recipe",)
     empty_value_display = "-пусто-"
 
-
+@admin.register(ShoppingCartList)
 class ShoppingCartListAdmin(admin.ModelAdmin):
     """Админка тэгов."""
 
@@ -99,7 +81,7 @@ class ShoppingCartListAdmin(admin.ModelAdmin):
     search_fields = ("recipe",)
     empty_value_display = "-пусто-"
 
-
+@admin.register(Favourite)
 class FavouriteAdmin(admin.ModelAdmin):
     """Админка тэгов."""
 
@@ -109,13 +91,3 @@ class FavouriteAdmin(admin.ModelAdmin):
     )
     search_fields = ("recipe", "user")
     empty_value_display = "-пусто-"
-
-
-admin.site.register(User, UserAdmin)
-admin.site.register(Subscribe, SubscribeAdmin)
-admin.site.register(Ingredient, IngredientAdmin)
-admin.site.register(Tag, TagAdmin)
-admin.site.register(Recipe, RecipeAdmin)
-admin.site.register(RecipeIngredients, RecipeIngredientsAdmin)
-admin.site.register(ShoppingCartList, ShoppingCartListAdmin)
-admin.site.register(Favourite, FavouriteAdmin)

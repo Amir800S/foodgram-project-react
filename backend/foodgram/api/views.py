@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from djoser.views import UserViewSet
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -12,8 +13,7 @@ from rest_framework.response import Response
 
 from .pdf_download import pdf_download
 from .filters import IngredientFilter, RecipeFilter
-from .pagination import PageLimitPagination
-from users.pagination import CustomPageNumberPagination
+from .pagination import PageLimitPagination, CustomPageNumberPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     FavouriteSerializer,
@@ -76,6 +76,11 @@ class RecipeViewSet(ModelViewSet):
         "patch",
     )
 
+    def get_permissions(self):
+        if self.action == 'me':
+            return (IsAuthenticated,)
+        return super().get_permissions()
+
     def get_serializer_class(self):
         if self.request.method == "GET":
             return RecipeReadSerializer
@@ -85,7 +90,10 @@ class RecipeViewSet(ModelViewSet):
     def favorite_shopping_cart(serializers, request, pk):
         context = {'request': request}
         data = {'user': request.user.id, 'recipe': pk}
-        serializer = serializers(data=data, context=context)
+        serializer = serializers(
+            data=data,
+            context=context
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=HTTPStatus.CREATED)
@@ -185,52 +193,32 @@ class CustomUserViewSet(UserViewSet):
         return paginator.get_paginated_response(serializer.data)
 
     @action(
-        methods=(
-            "post",
-            "delete",
-        ),
+        methods=("post",),
         detail=True,
         permission_classes=(IsAuthenticated,),
     )
     def subscribe(self, request, id):
-        """Функция подписки и отписки."""
-        user = request.user
+        """Метод для создания подписки."""
         author = get_object_or_404(User, pk=id)
-        obj = Subscribe.objects.filter(user=user, author=author)
-
-        if request.method == "POST":
-            if user == author:
-                return Response('На себя подписаться нельзя',
-                                status=HTTPStatus.BAD_REQUEST)
-            if obj.exists():
-                return Response(f'Вы уже подписаны на {author.username}',
-                                status=HTTPStatus.BAD_REQUEST)
-            serializer = SubscribeSerializer(
-                Subscribe.objects.create(user=user, author=author),
-                context={"request": request},
-            )
-            return Response(serializer.data, status=HTTPStatus.CREATED)
-        if user == author:
-            return Response('Вы не можете отписаться от самого себя',
-                            status=HTTPStatus.BAD_REQUEST)
-        if obj.exists():
-            obj.delete()
-            return Response(status=HTTPStatus.NO_CONTENT)
-        return Response(
-            f'Вы уже отписались от {author.username}',
-            status=HTTPStatus.BAD_REQUEST
+        subscription, created = Subscribe.objects.get_or_create(
+            user=request.user, author=author
         )
+        if request.method == "POST":
+            data = {'user': request.user.id, 'author': id}
+            serializer = SubscribeSerializer(
+                data=data, context={"request": request}
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=HTTPStatus.CREATED)
 
-    @action(detail=False, methods=("get",))
-    def me(self, request):
-        """Информация о пользователе."""
-        user = request.user
-        data = {
-            "email": user.email,
-            "id": user.id,
-            "username": user.username,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "is_subscribed": False,
-        }
-        return Response(data)
+    @subscribe.mapping.delete
+    def delete_subscribe(self, request, id):
+        author = get_object_or_404(User, pk=id)
+        subscription = get_object_or_404(
+            Subscribe, user=request.user, author=author
+        )
+        if subscription:
+            subscription.delete()
+            return Response(status=HTTPStatus.NO_CONTENT)
+        return Response(status=HTTPStatus.BAD_REQUEST)
