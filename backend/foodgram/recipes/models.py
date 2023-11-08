@@ -45,7 +45,7 @@ class Tag(models.Model):
         "Цветовой HEX-код",
         null=True,
         max_length=constants.TAG_COLOR,
-        validators = [RegexValidator(
+        validators=[RegexValidator(
             "^#([a-fA-F0-9]{6})", message='Введите HEX!'
         )]
 
