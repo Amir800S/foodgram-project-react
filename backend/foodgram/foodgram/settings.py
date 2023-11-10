@@ -6,7 +6,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", default="default")
 
 DEBUG = os.getenv("DEBUG_STATUS", default=True)
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', ' ').split(' ')
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", " ").split(" ")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -120,7 +120,7 @@ REST_FRAMEWORK = {
 
 DJOSER = {
     "SERIALIZERS": {
-        "user_create": "api.serializers.UserCreationSerializer",
+        "user": "api.serializers.UserSerializer",
     },
     "LOGIN_FIELD": "email",
     "HIDE_USERS": False,

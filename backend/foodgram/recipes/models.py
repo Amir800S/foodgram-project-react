@@ -26,8 +26,8 @@ class Ingredient(models.Model):
         ordering = ("name",)
         constraints = [
             UniqueConstraint(
-                fields=['name', 'measurement_unit'],
-                name='unique_ingregient_name_measurement_unit'
+                fields=["name", "measurement_unit"],
+                name="unique_ingregient_name_measurement_unit"
             )
         ]
 
@@ -46,7 +46,7 @@ class Tag(models.Model):
         null=True,
         max_length=constants.TAG_COLOR,
         validators=[RegexValidator(
-            r"^#([a-fA-F0-9]{6})", message='Введите HEX!'
+            r"^#([a-fA-F0-9]{6})", message="Введите HEX!"
         )]
 
     )
@@ -74,17 +74,17 @@ class Recipe(models.Model):
         "Время приготовления",
         validators=[MinValueValidator(
             constants.INGREDIENT_MIN_AMOUNT,
-            message='Время готовки должно быть больше'
+            message="Время готовки должно быть больше"
         ), MaxValueValidator(
             constants.INGREDIENT_MAX_AMOUNT,
-            message='Время готовки должно быть меньше'
+            message="Время готовки должно быть меньше"
         )]
     )
     ingredients = models.ManyToManyField(
         Ingredient,
         related_name="recipes",
         verbose_name="Ингредиенты",
-        through='RecipeIngredients'
+        through="RecipeIngredients"
     )
     text = models.TextField(
         "О рецепте",
@@ -99,12 +99,12 @@ class Recipe(models.Model):
         Tag, related_name="recipes", verbose_name="Тэги"
     )
     pub_date = models.DateTimeField(
-        verbose_name='Дата публикации рецепта',
+        verbose_name="Дата публикации рецепта",
         auto_now_add=True,
     )
 
     class Meta:
-        ordering = ('-pub_date',)
+        ordering = ("-pub_date",)
         verbose_name = "Рецепт"
         verbose_name_plural = "Рецепты"
 
@@ -151,13 +151,13 @@ class AbstractFavoriteShopping(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Пользователь',
+        verbose_name="Пользователь",
 
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        verbose_name='Рецепт',
+        verbose_name="Рецепт",
     )
 
     class Meta:
@@ -170,14 +170,14 @@ class AbstractFavoriteShopping(models.Model):
 class Favourite(AbstractFavoriteShopping):
     """Наследник абстрактного класса для избранного."""
     class Meta(AbstractFavoriteShopping.Meta):
-        default_related_name = 'favourites_recipe'
-        verbose_name = 'Избранные рецепты'
-        verbose_name_plural = 'Избранные рецепты'
+        default_related_name = "favourites_recipe"
+        verbose_name = "Избранные рецепты"
+        verbose_name_plural = "Избранные рецепты"
 
 
 class ShoppingCartList(AbstractFavoriteShopping):
     """Наследник абстрактного класса для покупок."""
     class Meta(AbstractFavoriteShopping.Meta):
-        default_related_name = 'shopping_recipe'
-        verbose_name = 'Список для покупок'
-        verbose_name_plural = 'Списки для покупок'
+        default_related_name = "shopping_recipe"
+        verbose_name = "Список для покупок"
+        verbose_name_plural = "Списки для покупок"

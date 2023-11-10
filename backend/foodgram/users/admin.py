@@ -24,9 +24,11 @@ class UserAdmin(BaseUserAdmin):
 
     def recipes_count(self, obj):
         return obj.recipes.count()
+    recipes_count.short_description = "Количество рецептов"
 
     def followers_count(self, obj):
         return obj.author.count()
+    followers_count.short_description = "Количество подписчиков"
 
 
 @admin.register(Subscribe)
