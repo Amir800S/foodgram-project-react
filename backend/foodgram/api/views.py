@@ -183,7 +183,6 @@ class UserViewSet(UserViewSet):
     )
     def subscriptions(self, request):
         """Список авторов, на которых подписан пользователь."""
-        user = request.user
         queryset = User.objects.filter(author__user=self.request.user)
         paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(

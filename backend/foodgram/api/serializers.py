@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 from django.core.exceptions import ValidationError
-from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer
 from drf_base64.fields import Base64ImageField
 from rest_framework import serializers

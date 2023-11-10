@@ -29,13 +29,15 @@ class Command(BaseCommand):
                     if created:
                         self.stdout.write(
                             self.style.SUCCESS(
-                                f'Ингредиент {ingredient.name} добавлен в базу.'
+                                f'Ингредиент'
+                                f' {ingredient.name} добавлен в базу.'
                             )
                         )
                     else:
                         self.stdout.write(
                             self.style.SUCCESS(
-                                f'Ингредиент {ingredient.name} уже есть в базе.'
+                                f'Ингредиент'
+                                f' {ingredient.name} уже есть в базе.'
                             )
                         )
         except FileNotFoundError:
