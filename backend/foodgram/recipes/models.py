@@ -77,7 +77,7 @@ class Recipe(models.Model):
         "Время приготовления",
         validators=[MinValueValidator(
             constants.INGREDIENT_MIN_AMOUNT,
-            message="Время готовки должно быть больше"
+            message="Время готовки должно быть не меньше чем 1 минута"
         ), MaxValueValidator(
             constants.INGREDIENT_MAX_AMOUNT,
             message="Время готовки должно быть меньше"
@@ -149,7 +149,7 @@ class RecipeIngredients(models.Model):
         )
 
 
-class AbstractFavoriteShopping(models.Model):
+class UserRecipe(models.Model):
     """Абстрактный класс для покупок и избранного."""
     user = models.ForeignKey(
         User,
@@ -167,20 +167,20 @@ class AbstractFavoriteShopping(models.Model):
         abstract = True
 
     def __str__(self):
-        return "{} В Избранном у {}".format(self.recipe, self.user)
+        return "{} В {} у {}".format(self.recipe, self.__str__(), self.user)
 
 
-class Favourite(AbstractFavoriteShopping):
+class Favourite(UserRecipe):
     """Наследник абстрактного класса для избранного."""
-    class Meta(AbstractFavoriteShopping.Meta):
+    class Meta(UserRecipe.Meta):
         default_related_name = "favourites_recipe"
         verbose_name = "Избранные рецепты"
         verbose_name_plural = "Избранные рецепты"
 
 
-class ShoppingCartList(AbstractFavoriteShopping):
+class ShoppingCartList(UserRecipe):
     """Наследник абстрактного класса для покупок."""
-    class Meta(AbstractFavoriteShopping.Meta):
+    class Meta(UserRecipe.Meta):
         default_related_name = "shopping_recipe"
         verbose_name = "Список для покупок"
         verbose_name_plural = "Списки для покупок"
