@@ -57,10 +57,10 @@ class RecipeViewSet(ModelViewSet):
     """Вьюсет рецептов."""
 
     queryset = Recipe.objects.all().select_related(
-        'author'
+        "author"
     ).prefetch_related(
-        'tags',
-        'ingredients'
+        "tags",
+        "ingredients"
     )
     pagination_class = PageLimitPagination
     permission_classes = (IsAuthorOrReadOnly,)
@@ -74,11 +74,6 @@ class RecipeViewSet(ModelViewSet):
         "patch",
     )
 
-    def get_permissions(self):
-        if self.action == 'me':
-            return (IsAuthenticated,)
-        return super().get_permissions()
-
     def get_serializer_class(self):
         if self.request.method == "GET":
             return RecipeReadSerializer
@@ -86,8 +81,8 @@ class RecipeViewSet(ModelViewSet):
 
     @staticmethod
     def favorite_shopping_cart(serializers, request, pk):
-        context = {'request': request}
-        data = {'user': request.user.id, 'recipe': pk}
+        context = {"request": request}
+        data = {"user": request.user.id, "recipe": pk}
         serializer = serializers(
             data=data,
             context=context
@@ -98,9 +93,9 @@ class RecipeViewSet(ModelViewSet):
 
     @action(
         detail=True,
-        methods=['post'],
-        url_path='favorite',
-        url_name='favorite',
+        methods=("post",),
+        url_path="favorite",
+        url_name="favorite",
         permission_classes=(IsAuthenticated,)
     )
     def favorite(self, request, pk):
@@ -112,20 +107,19 @@ class RecipeViewSet(ModelViewSet):
 
     @favorite.mapping.delete
     def delete_favorite(self, request, pk):
-        recipe = get_object_or_404(Recipe, pk=pk)
-        favourite = get_object_or_404(
-            Favourite,
-            user=request.user,
-            recipe=recipe
+        favourite = Favourite.objects.filter(
+            user=request.user, recipe=get_object_or_404(Recipe, pk=pk)
         )
-        favourite.delete()
-        return Response(status=HTTPStatus.NO_CONTENT)
+        if favourite:
+            favourite.delete()
+            return Response(status=HTTPStatus.NO_CONTENT)
+        return Response(status=HTTPStatus.BAD_REQUEST)
 
     @action(
         detail=True,
-        methods=['post'],
-        url_path='shopping_cart',
-        url_name='shopping_cart',
+        methods=('post',),
+        url_path="shopping_cart",
+        url_name="shopping_cart",
         permission_classes=(IsAuthenticated,)
     )
     def shopping_cart(self, request, pk):
@@ -137,14 +131,13 @@ class RecipeViewSet(ModelViewSet):
 
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk):
-        recipe = get_object_or_404(Recipe, pk=pk)
-        shopping_cart = get_object_or_404(
-            ShoppingCartList,
-            user=request.user.id,
-            recipe=recipe
+        shopping_cart = ShoppingCartList.objects.filter(
+            user=request.user, recipe=get_object_or_404(Recipe, pk=pk)
         )
-        shopping_cart.delete()
-        return Response(status=HTTPStatus.NO_CONTENT)
+        if shopping_cart:
+            shopping_cart.delete()
+            return Response(status=HTTPStatus.NO_CONTENT)
+        return Response(status=HTTPStatus.BAD_REQUEST)
 
     @action(
         detail=False,
@@ -158,7 +151,7 @@ class RecipeViewSet(ModelViewSet):
             )
             .values("ingredient")
             .annotate(total_amount=Sum("amount")).order_by(
-                'ingredient__name'
+                "ingredient__name"
             )
             .values_list(
                 "ingredient__name",
@@ -169,13 +162,18 @@ class RecipeViewSet(ModelViewSet):
         return pdf_download(ingredients)
 
 
-class CustomUserViewSet(UserViewSet):
+class UserViewSet(UserViewSet):
     """Вьюсет для модели User и Subscribe."""
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
     pagination_class = CustomPageNumberPagination
     permission_classes = (AllowAny,)
+
+    def get_permissions(self):
+        if self.action == "me":
+            return (IsAuthenticated(), )
+        return super().get_permissions()
 
     @action(
         detail=False,
@@ -186,9 +184,11 @@ class CustomUserViewSet(UserViewSet):
     def subscriptions(self, request):
         """Список авторов, на которых подписан пользователь."""
         user = request.user
-        queryset = user.follower.all()
+        queryset = User.objects.filter(author__user=self.request.user)
         paginator = self.pagination_class()
-        result_page = paginator.paginate_queryset(queryset, request, view=self)
+        result_page = paginator.paginate_queryset(
+            queryset, request, view=self
+        )
         serializer = SubscriptionSerializer(
             result_page, many=True, context={"request": request}
         )
@@ -201,26 +201,20 @@ class CustomUserViewSet(UserViewSet):
     )
     def subscribe(self, request, id):
         """Метод для создания подписки."""
-        author = get_object_or_404(User, pk=id)
-        subscription, created = Subscribe.objects.get_or_create(
-            user=request.user, author=author
+        data = {'user': request.user.id, 'author': id}
+        serializer = SubscribeSerializer(
+            data=data, context={"request": request}
         )
-        if request.method == "POST":
-            data = {'user': request.user.id, 'author': id}
-            serializer = SubscribeSerializer(
-                data=data, context={"request": request}
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=HTTPStatus.CREATED)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=HTTPStatus.CREATED)
 
     @subscribe.mapping.delete
     def delete_subscribe(self, request, id):
-        author = get_object_or_404(User, pk=id)
-        subscription = get_object_or_404(
-            Subscribe, user=request.user, author=author
+        subscription = Subscribe.objects.filter(
+            user=request.user, author=get_object_or_404(User, id=id)
         )
-        if subscription:
+        if subscription.exists():
             subscription.delete()
             return Response(status=HTTPStatus.NO_CONTENT)
         return Response(status=HTTPStatus.BAD_REQUEST)

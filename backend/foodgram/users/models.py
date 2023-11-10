@@ -15,7 +15,6 @@ class User(AbstractUser):
     )
     last_name = models.CharField(
         max_length=constants.LAST_USERNAME_MAX_LENGHT,
-        blank=True,
         null=False,
         verbose_name="Фамилия",
     )
@@ -34,14 +33,8 @@ class User(AbstractUser):
         unique=True,
         blank=False,
     )
-    password = models.CharField(
-        "Пароль",
-        max_length=constants.PASSWORD_MAX_LENGHT,
-        blank=False,
-        null=False,
-    )
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ('first_name', 'last_name', 'username')
+    REQUIRED_FIELDS = ("first_name", "last_name", "username")
 
     class Meta:
         ordering = ("username",)
