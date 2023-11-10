@@ -13,11 +13,11 @@ class Ingredient(models.Model):
 
     name = models.CharField(
         "Название ингредиента",
-        max_length=constants.INGREDIENT_NAME,
+        max_length=constants.RECIPE_NAME_AND_TAGS,
         null=False
     )
     measurement_unit = models.CharField(
-        "Единица для измерения", max_length=constants.INGREDIENT_UNIT
+        "Единица для измерения", max_length=constants.RECIPE_NAME_AND_TAGS
     )
 
     class Meta:
@@ -39,7 +39,8 @@ class Tag(models.Model):
     """Модель тэга."""
 
     name = models.CharField(
-        "Название тэга", unique=True, max_length=constants.TAG_NAME
+        "Название тэга", unique=True,
+        max_length=constants.RECIPE_NAME_AND_TAGS
     )
     color = models.CharField(
         "Цветовой HEX-код",
@@ -50,7 +51,9 @@ class Tag(models.Model):
         )]
 
     )
-    slug = models.SlugField("Слаг", unique=True, max_length=constants.TAG_SLUG)
+    slug = models.SlugField(
+        "Слаг", unique=True, max_length=constants.RECIPE_NAME_AND_TAGS
+    )
 
     class Meta:
         verbose_name = "Тэг"
@@ -93,7 +96,7 @@ class Recipe(models.Model):
         "Изображение рецепта", upload_to="recipes/"
     )
     name = models.CharField(
-        "Название рецепта", max_length=constants.RECIPE_NAME
+        "Название рецепта", max_length=constants.RECIPE_NAME_AND_TAGS
     )
     tags = models.ManyToManyField(
         Tag, related_name="recipes", verbose_name="Тэги"

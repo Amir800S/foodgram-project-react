@@ -20,7 +20,7 @@ class User(AbstractUser):
     )
     username = models.CharField(
         "Никнейм",
-        max_length=constants.USERNAME_MAX_LENGHT,
+        max_length=constants.USERNAME_AND_PASSWORD_MAX_LENGHT,
         null=False,
         blank=True,
         unique=True,

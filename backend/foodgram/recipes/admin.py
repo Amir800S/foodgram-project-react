@@ -56,14 +56,17 @@ class RecipeAdmin(admin.ModelAdmin):
     empty_value_display = "-пусто-"
 
     def ingredients_list(self, obj):
-        return ', '.join((str(ingredient) for ingredient
+        return ", ".join((str(ingredient) for ingredient
                           in obj.ingredients.all()))
+    ingredients_list.short_description = "Ингредиенты"
 
     def favorites_count(self, obj):
         return obj.favourites_recipe.count()
+    favorites_count.short_description = "Количество избранных рецептов"
 
     def image(self, obj):
         return mark_safe(f'<img src={obj.image.url} width="80" height="60">')
+    image.short_description = "Изображение"
 
 
 @admin.register(RecipeIngredients)
