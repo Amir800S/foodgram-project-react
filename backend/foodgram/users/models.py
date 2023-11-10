@@ -10,11 +10,11 @@ class User(AbstractUser):
     """Модель пользователя."""
 
     first_name = models.CharField(
-        max_length=constants.FIRST_USERNAME_MAX_LENGHT,
+        max_length=constants.FIRST_AND_LAST_USERNAME_MAX_LENGHT,
         verbose_name="Имя",
     )
     last_name = models.CharField(
-        max_length=constants.LAST_USERNAME_MAX_LENGHT,
+        max_length=constants.FIRST_AND_LAST_USERNAME_MAX_LENGHT,
         null=False,
         verbose_name="Фамилия",
     )

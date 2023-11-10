@@ -22,13 +22,13 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ("username",)
     empty_value_display = "-пусто-"
 
+    @admin.display(description='Количество рецептов')
     def recipes_count(self, obj):
         return obj.recipes.count()
-    recipes_count.short_description = "Количество рецептов"
 
+    @admin.display(description='Количество подписчиков')
     def followers_count(self, obj):
         return obj.author.count()
-    followers_count.short_description = "Количество подписчиков"
 
 
 @admin.register(Subscribe)
