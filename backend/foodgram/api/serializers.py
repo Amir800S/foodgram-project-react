@@ -83,8 +83,11 @@ class SubscribeSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation["author"] = SubscriptionSerializer(instance.author).data
+        representation["author"] = SubscriptionSerializer(
+            instance.author
+        ).data
         return representation
+
 
 class SubscriptionSerializer(UserSerializer):
     """Сериалайзер для подписки."""
