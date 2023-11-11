@@ -66,7 +66,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     @admin.display(description='Изображение')
     def image(self, obj):
-        return mark_safe(f'<img src={obj.image.url} width="80" height="60">')
+        return mark_safe(f"<img src={obj.image.url} width='80' height='60'>")
 
 
 @admin.register(RecipeIngredients)
