@@ -4,7 +4,7 @@ from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from djoser.views import UserViewSet
+from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -108,16 +108,16 @@ class RecipeViewSet(ModelViewSet):
     @favorite.mapping.delete
     def delete_favorite(self, request, pk):
         favourite = Favourite.objects.filter(
-            user=request.user, recipe=get_object_or_404(Recipe, pk=pk)
+            user=request.user, recipe_id=pk
         )
-        if favourite:
+        if favourite.exists():
             favourite.delete()
             return Response(status=HTTPStatus.NO_CONTENT)
         return Response(status=HTTPStatus.BAD_REQUEST)
 
     @action(
         detail=True,
-        methods=('post',),
+        methods=("post",),
         url_path="shopping_cart",
         url_name="shopping_cart",
         permission_classes=(IsAuthenticated,)
@@ -132,9 +132,9 @@ class RecipeViewSet(ModelViewSet):
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk):
         shopping_cart = ShoppingCartList.objects.filter(
-            user=request.user, recipe=get_object_or_404(Recipe, pk=pk)
+            user=request.user, recipe_id=pk
         )
-        if shopping_cart:
+        if shopping_cart.exists():
             shopping_cart.delete()
             return Response(status=HTTPStatus.NO_CONTENT)
         return Response(status=HTTPStatus.BAD_REQUEST)
@@ -162,7 +162,7 @@ class RecipeViewSet(ModelViewSet):
         return pdf_download(ingredients)
 
 
-class UserViewSet(UserViewSet):
+class UserViewSet(DjoserUserViewSet):
     """Вьюсет для модели User и Subscribe."""
 
     queryset = User.objects.all()
@@ -200,7 +200,7 @@ class UserViewSet(UserViewSet):
     )
     def subscribe(self, request, id):
         """Метод для создания подписки."""
-        data = {'user': request.user.id, 'author': id}
+        data = {"user": request.user.id, "author": id}
         serializer = SubscribeSerializer(
             data=data, context={"request": request}
         )
@@ -211,7 +211,7 @@ class UserViewSet(UserViewSet):
     @subscribe.mapping.delete
     def delete_subscribe(self, request, id):
         subscription = Subscribe.objects.filter(
-            user=request.user, author=get_object_or_404(User, id=id)
+            user=request.user, author_id=id
         )
         if subscription.exists():
             subscription.delete()

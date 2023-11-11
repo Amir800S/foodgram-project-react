@@ -80,7 +80,7 @@ class Recipe(models.Model):
             message="Время готовки должно быть не меньше чем 1 минута"
         ), MaxValueValidator(
             constants.INGREDIENT_MAX_AMOUNT,
-            message="Время готовки должно быть меньше"
+            message="Время готовки должно быть меньше чем 10000 минут"
         )]
     )
     ingredients = models.ManyToManyField(
@@ -165,6 +165,21 @@ class UserRecipe(models.Model):
 
     class Meta:
         abstract = True
+        unique_together = ("user", "recipe")
+
+    def clean(self):
+        if self.__class__.objects.filter(
+                user=self.user, recipe=self.recipe
+        ).exists():
+            raise ValidationError(
+                "Пользователь уже добавил этот рецепт."
+            )
+        if self.__class__.objects.filter(
+                user=self.user, name=self.name
+        ).exists():
+            raise ValidationError(
+                "Пользователь уже имеет список с таким именем."
+            )
 
     def __str__(self):
         return "{} В {} у {}".format(self.recipe, self.__str__(), self.user)

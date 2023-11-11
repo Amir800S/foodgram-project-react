@@ -15,14 +15,13 @@ class User(AbstractUser):
     )
     last_name = models.CharField(
         max_length=constants.FIRST_AND_LAST_USERNAME_MAX_LENGHT,
-        null=False,
         verbose_name="Фамилия",
     )
     username = models.CharField(
         "Никнейм",
         max_length=constants.USERNAME_AND_PASSWORD_MAX_LENGHT,
         null=False,
-        blank=True,
+        blank=False,
         unique=True,
         validators=(validate_regex_username, validate_username),
     )
