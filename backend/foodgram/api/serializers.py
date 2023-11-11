@@ -281,7 +281,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         ingredient_list = {ingredient["id"] for ingredient in ingredients}
         if len(ingredient_list) != len(ingredients):
             raise serializers.ValidationError(
-                {'ingredients':"Ингредиенты не должны повторяться."}
+                {'ingredients': "Ингредиенты не должны повторяться."}
             )
         if not tags:
             raise serializers.ValidationError(
@@ -298,11 +298,11 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         file_extension = image.name.split('.')[-1]
         if not image:
             raise serializers.ValidationError(
-                {'image' :"Нужна картинка."}
+                {'image': "Нужна картинка."}
             )
         if file_extension.lower() not in supported_formats:
             raise serializers.ValidationError(
-                {'file_extension':"Непонятный формат картинки."}
+                {'file_extension': "Непонятный формат картинки."}
             )
         return image
 
