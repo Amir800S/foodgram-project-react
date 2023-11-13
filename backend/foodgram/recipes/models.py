@@ -81,7 +81,9 @@ class Recipe(models.Model):
             message="Время готовки должно быть не меньше чем 1 минута"
         ), MaxValueValidator(
             constants.INGREDIENT_MAX_AMOUNT,
-            message="Время готовки должно быть меньше чем 10000 минут"
+            message=f"Время готовки должно"
+                    f" быть меньше "
+                    f"чем {constants.INGREDIENT_MAX_AMOUNT} минут"
         )]
     )
     ingredients = models.ManyToManyField(
@@ -181,6 +183,7 @@ class UserRecipe(models.Model):
             raise ValidationError(
                 "Пользователь уже имеет список с таким именем."
             )
+        return super().save(self)
 
     def __str__(self):
         return "{} В {} у {}".format(self.recipe, self.__str__(), self.user)

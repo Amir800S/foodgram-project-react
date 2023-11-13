@@ -20,17 +20,13 @@ class User(AbstractUser):
     username = models.CharField(
         "Никнейм",
         max_length=constants.USERNAME_AND_PASSWORD_MAX_LENGHT,
-        null=False,
-        blank=False,
         unique=True,
         validators=(validate_regex_username, validate_username),
     )
     email = models.EmailField(
         "Email",
         max_length=constants.EMAIL_MAX_LENGHT,
-        null=False,
         unique=True,
-        blank=False,
     )
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ("first_name", "last_name", "username")

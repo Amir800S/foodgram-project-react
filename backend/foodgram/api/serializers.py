@@ -82,11 +82,10 @@ class SubscribeSerializer(serializers.ModelSerializer):
         return data
 
     def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation["author"] = SubscriptionSerializer(
-            instance.author
+        return SubscriptionSerializer(
+            instance.author,
+            context=self.context,
         ).data
-        return representation
 
 
 class SubscriptionSerializer(UserSerializer):
@@ -276,7 +275,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         ingredients = data.get("ingredients")
         if len(tags) != len(set(tags)):
             raise serializers.ValidationError(
-                {"tags": "Теги должна быть уникальными."}
+                {"tags": "Теги должны быть уникальными."}
             )
         ingredient_list = {ingredient["id"] for ingredient in ingredients}
         if len(ingredient_list) != len(ingredients):
@@ -345,15 +344,3 @@ class ShoppingCartSerializer(FavouriteSerializer):
 
     class Meta(FavouriteSerializer.Meta):
         model = ShoppingCartList
-
-    def validate(self, data):
-        recipe = self.instance
-        user = self.context.get("request").user
-        if self.Meta.model.objects.filter(
-                recipe=recipe, user=user
-        ).exists():
-            raise serializers.ValidationError(
-                detail="Рецепт уже добавлен в корзину",
-                code=HTTPStatus.BAD_REQUEST,
-            )
-        return data
