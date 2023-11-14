@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 from django.core.exceptions import ValidationError
-from djoser.serializers import UserCreateSerializer
 from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
@@ -62,7 +61,6 @@ class SubscribeSerializer(serializers.ModelSerializer):
         model = Subscribe
         fields = (
             "author",
-            "id",
             "user",
         )
 
@@ -92,7 +90,7 @@ class SubscriptionSerializer(UserSerializer):
     """Сериалайзер для подписки."""
 
     recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.ReadOnlyField(source="author.recipes.count")
+    recipes_count = serializers.ReadOnlyField(source="recipes.count")
 
     class Meta:
         model = User
@@ -185,7 +183,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 class RecipeReadSerializer(serializers.ModelSerializer):
     """Сериалайзер для списка рецептов."""
 
-    author = UserCreateSerializer(read_only=True)
+    author = UserSerializer(read_only=True)
     tags = TagSerializer(many=True)
     ingredients = RecipeIngredientSerializer(
         many=True, source="recipe_ingredients"
@@ -249,7 +247,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Tag.objects.all()
     )
-    author = UserCreateSerializer(read_only=True)
+    author = UserSerializer(read_only=True)
     ingredients = RecipeIngredientCreateSerializer(many=True)
     image = Base64ImageField()
     cooking_time = serializers.IntegerField(
