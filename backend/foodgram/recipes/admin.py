@@ -45,9 +45,6 @@ class RecipeAdmin(admin.ModelAdmin):
         "image"
     )
     list_editable = (
-        "cooking_time",
-        "text",
-        "image",
         "author",
     )
     list_display_links = ("name",)
@@ -65,7 +62,7 @@ class RecipeAdmin(admin.ModelAdmin):
         return obj.favourites_recipe.count()
 
     @admin.display(description='Изображение')
-    def image(self, obj):
+    def get_image(self, obj):
         return mark_safe(f"<img src={obj.image.url} width='80' height='60'>")
 
 
