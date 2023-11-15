@@ -42,7 +42,7 @@ class RecipeAdmin(admin.ModelAdmin):
         "author",
         "ingredients_list",
         "favorites_count",
-        "image"
+        "get_image"
     )
     list_editable = (
         "author",
@@ -52,7 +52,7 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ("name", "author")
     empty_value_display = "-пусто-"
 
-    @admin.display(description='Ингредиенты')
+    @admin.display(description="Ингредиенты")
     def ingredients_list(self, obj):
         return ", ".join((str(ingredient) for ingredient
                           in obj.ingredients.all()))
@@ -61,7 +61,7 @@ class RecipeAdmin(admin.ModelAdmin):
     def favorites_count(self, obj):
         return obj.favourites_recipe.count()
 
-    @admin.display(description='Изображение')
+    @admin.display(description="Изображение")
     def get_image(self, obj):
         return mark_safe(f"<img src={obj.image.url} width='80' height='60'>")
 

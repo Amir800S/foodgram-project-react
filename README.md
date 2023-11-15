@@ -58,7 +58,7 @@ DB_PORT=5432
 docker-compose up -d
 docker-compose exec <имя_контейнера_бэкэнда> python3 manage.py makemigrations
 docker-compose exec <имя_контейнера_бэкэнда> python3 manage.py migrate
-docker-compose exec <имя_контейнера_бэкэнда> python3 manage.py collectstatic
+docker-compose exec <имя_контейнера_бэкэнда> python3 manage.py collectstatic --noinput
 ```
 
 Создаем администратора командой:
