@@ -69,6 +69,11 @@ docker-compose exec <имя_контейнера_бэкэнда> python manage.p
 ```python
 docker-compose exec <имя_контейнера_бэкэнда> python3 manage.py import_csv
 ```
+Проект доступен по IP-адресу:
+```python
+http://158.160.9.246
+```
+
 Теги добавляем вручную в админ-зоне, не надо лениться!
 ### Проект готов к работе!
 
